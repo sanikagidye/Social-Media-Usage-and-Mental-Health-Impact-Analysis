@@ -245,7 +245,7 @@ with tab_prep:
        - Created mental health severity categories
        - Created composite mental health score
                 
-        **All Raw Data:** [Download Raw Datasets](https://github.com/sanikagidye/Social-Media-Usage-and-Mental-Health-Impact-Analysis) """)
+        **Github:** (https://github.com/sanikagidye/Social-Media-Usage-and-Mental-Health-Impact-Analysis) """)
 
     
     
