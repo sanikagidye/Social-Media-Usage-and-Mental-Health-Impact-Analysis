@@ -445,8 +445,6 @@ with tab_conc:
 st.markdown("---")
 st.markdown("""
     <div style='text-align: center; color: #666; padding: 20px;'>
-        <p><strong>Social Media & Mental Health Analysis</strong></p>
-        <p>Complete Data Science Project | 2024-2025</p>
-        
+        <p><strong>Social Media & Mental Health Analysis</strong></p>       
     </div>
 """, unsafe_allow_html=True)
