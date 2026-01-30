@@ -56,8 +56,8 @@ with tab_intro:
     st.title("📖 Social Media Usage and Mental Health Impact Analysis")
     
     # Display summary dashboard if available
-    if os.path.exists('images/eda/11_summary_dashboard.png'):
-        st.image('images/eda/11_summary_dashboard.png', use_container_width=True)
+    if os.path.exists('C:/Users/gidye/Downloads/Project/viz/Social-Media-Effects-on-Mental-Health1.jpg'):
+        st.image('C:/Users/gidye/Downloads/Project/viz/Social-Media-Effects-on-Mental-Health1.jpg', use_container_width=True)
     
     st.markdown("""
     ## Understanding the Digital Age's Impact on Mental Wellbeing
@@ -155,7 +155,6 @@ with tab_intro:
     - Mental Health Assessment API (validated psychological assessments)
     - Population Health Statistics API (country-level mental health data)
     
-    **GitHub Repository:** [View Code](https://github.com/yourusername/social-media-mental-health)
     """)
 
 # --- 2) DATA PREP / EDA ---
@@ -175,7 +174,7 @@ with tab_prep:
     - **Example Request:** `GET https://api.socialmedia.com/v2/users/analytics?user_id=USER0001&metrics=engagement,usage`
     - **Data Collected:** User engagement metrics, usage patterns, posting behavior
     - **Sample Size:** 1,000 users
-    - **Code:** [data_collection.py](https://github.com/yourusername/project/blob/main/data_collection.py)
+
     
     #### 2. Mental Health Assessment API
     - **API:** Mental Health Survey Database
@@ -183,7 +182,7 @@ with tab_prep:
     - **Example Request:** `GET https://api.health.gov/v1/mental-health/assessments?user_id=USER0001`
     - **Data Collected:** PHQ-9, GAD-7, Rosenberg Self-Esteem, PSQI sleep quality scores
     - **Sample Size:** 1,000 users
-    - **Code:** [data_collection.py](https://github.com/yourusername/project/blob/main/data_collection.py)
+
     
     #### 3. Population Health Statistics API
     - **API:** WHO Mental Health Atlas / CDC BRFSS
@@ -192,7 +191,6 @@ with tab_prep:
     - **Data Collected:** Country-level mental health prevalence rates
     - **Sample Size:** 70 country-year combinations
     
-    **All Raw Data:** [Download Raw Datasets](https://github.com/yourusername/project/tree/main/data/raw)
     """)
     
     st.divider()
@@ -203,14 +201,14 @@ with tab_prep:
     col1, col2 = st.columns(2)
     with col1:
         st.markdown("#### Raw Data Sample")
-        if os.path.exists('images/data_samples/01_raw_social_media_data.png'):
-            st.image('images/data_samples/01_raw_social_media_data.png', use_container_width=True)
+        if os.path.exists('C:/Users/gidye/Downloads/Project/viz/Screenshot 2026-01-29 215316.png'):
+            st.image('C:/Users/gidye/Downloads/Project/viz/Screenshot 2026-01-29 215316.png', use_container_width=True)
         st.caption("Raw dataset with missing values, duplicates, and outliers")
         
     with col2:
         st.markdown("#### Cleaned Data Sample")
-        if os.path.exists('images/data_samples/02_clean_social_media_data.png'):
-            st.image('images/data_samples/02_clean_social_media_data.png', use_container_width=True)
+        if os.path.exists('C:/Users/gidye/Downloads/Project/viz/Screenshot 2026-01-29 215713.png'):
+            st.image('C:/Users/gidye/Downloads/Project/viz/Screenshot 2026-01-29 215713.png', use_container_width=True)
         st.caption("Cleaned dataset after preprocessing and validation")
     
     st.divider()
@@ -246,10 +244,6 @@ with tab_prep:
        - Created `late_night_pct` = late night hours / total hours
        - Created mental health severity categories
        - Created composite mental health score
-    
-    **Cleaning Code:** [data_cleaning.py](https://github.com/yourusername/project/blob/main/data_cleaning.py)
-    
-    **Cleaned Data:** [Download Clean Datasets](https://github.com/yourusername/project/tree/main/data/cleaned)
     """)
     
     st.divider()
@@ -453,6 +447,6 @@ st.markdown("""
     <div style='text-align: center; color: #666; padding: 20px;'>
         <p><strong>Social Media & Mental Health Analysis</strong></p>
         <p>Complete Data Science Project | 2024-2025</p>
-        <p>GitHub: <a href='https://github.com/yourusername/social-media-mental-health'>View Repository</a></p>
+        
     </div>
 """, unsafe_allow_html=True)
