@@ -289,8 +289,8 @@ with tab_prep:
     
     with viz_tabs[1]:
         st.markdown("### Visualization 2: Mental Health Scores by Age Group")
-        if os.path.exists('02_mental_health_by_age.png'):
-            st.image('02_mental_health_by_age.png', use_container_width=True)
+        if os.path.exists('viz/02_mental_health_by_age.png'):
+            st.image('viz/02_mental_health_by_age.png', use_container_width=True)
         st.markdown("""
         **Description:** These visualizations reveal that younger age groups (13-17 and 18-24) experience
         significantly higher levels of both depression and anxiety compared to older groups. This pattern
