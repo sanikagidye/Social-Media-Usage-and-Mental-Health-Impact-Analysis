@@ -56,8 +56,8 @@ with tab_intro:
     st.title("📖 Social Media Usage and Mental Health Impact Analysis")
     
     # Display summary dashboard if available
-    if os.path.exists('C:/Users/gidye/Downloads/Project/viz/Social-Media-Effects-on-Mental-Health1.jpg'):
-        st.image('C:/Users/gidye/Downloads/Project/viz/Social-Media-Effects-on-Mental-Health1.jpg', use_container_width=True)
+    if os.path.exists('viz/Social-Media-Effects-on-Mental-Health1.jpg'):
+        st.image('viz/Social-Media-Effects-on-Mental-Health1.jpg', use_container_width=True)
     
     st.markdown("""
     ## Understanding the Digital Age's Impact on Mental Wellbeing
@@ -201,14 +201,14 @@ with tab_prep:
     col1, col2 = st.columns(2)
     with col1:
         st.markdown("#### Raw Data Sample")
-        if os.path.exists('C:/Users/gidye/Downloads/Project/viz/Screenshot 2026-01-29 215316.png'):
-            st.image('C:/Users/gidye/Downloads/Project/viz/Screenshot 2026-01-29 215316.png', use_container_width=True)
+        if os.path.exists('viz/Screenshot 2026-01-29 215316.png'):
+            st.image('viz/Screenshot 2026-01-29 215316.png', use_container_width=True)
         st.caption("Raw dataset with missing values, duplicates, and outliers")
         
     with col2:
         st.markdown("#### Cleaned Data Sample")
-        if os.path.exists('C:/Users/gidye/Downloads/Project/viz/Screenshot 2026-01-29 215713.png'):
-            st.image('C:/Users/gidye/Downloads/Project/viz/Screenshot 2026-01-29 215713.png', use_container_width=True)
+        if os.path.exists('viz/Screenshot 2026-01-29 215713.png'):
+            st.image('viz/Screenshot 2026-01-29 215713.png', use_container_width=True)
         st.caption("Cleaned dataset after preprocessing and validation")
     
     st.divider()
@@ -278,8 +278,8 @@ with tab_prep:
     
     with viz_tabs[0]:
         st.markdown("### Visualization 1: Daily Social Media Usage Distribution")
-        if os.path.exists('C:/Users/gidye/Downloads/Project/viz/01_usage_distribution.png'):
-            st.image('C:/Users/gidye/Downloads/Project/viz/01_usage_distribution.png', use_container_width=True)
+        if os.path.exists('viz/01_usage_distribution.png'):
+            st.image('viz/01_usage_distribution.png', use_container_width=True)
         st.markdown("""
         **Description:** This histogram shows the distribution of daily social media usage among users.
         The average user spends approximately 4.35 hours per day on social media, with a right-skewed 
@@ -289,8 +289,8 @@ with tab_prep:
     
     with viz_tabs[1]:
         st.markdown("### Visualization 2: Mental Health Scores by Age Group")
-        if os.path.exists('C:/Users/gidye/Downloads/Project/viz/02_mental_health_by_age.png'):
-            st.image('C:/Users/gidye/Downloads/Project/viz/02_mental_health_by_age.png', use_container_width=True)
+        if os.path.exists('02_mental_health_by_age.png'):
+            st.image('02_mental_health_by_age.png', use_container_width=True)
         st.markdown("""
         **Description:** These visualizations reveal that younger age groups (13-17 and 18-24) experience
         significantly higher levels of both depression and anxiety compared to older groups. This pattern
@@ -300,8 +300,8 @@ with tab_prep:
     
     with viz_tabs[2]:
         st.markdown("### Visualization 3: Platform Comparison - Mental Health Impact")
-        if os.path.exists('C:/Users/gidye/Downloads/Project/viz/03_platform_comparison.png'):
-            st.image('C:/Users/gidye/Downloads/Project/viz/03_platform_comparison.png', use_container_width=True)
+        if os.path.exists('viz/03_platform_comparison.png'):
+            st.image('viz/03_platform_comparison.png', use_container_width=True)
         st.markdown("""
         **Description:** Different platforms show varying associations with mental health outcomes.
         Instagram and TikTok users report higher average depression and anxiety scores, possibly due
@@ -311,8 +311,8 @@ with tab_prep:
     
     with viz_tabs[3]:
         st.markdown("### Visualization 4: Correlation Matrix - Usage & Mental Health")
-        if os.path.exists('C:/Users/gidye/Downloads/Project/viz/04_correlation_heatmap.png'):
-            st.image('C:/Users/gidye/Downloads/Project/viz/04_correlation_heatmap.png', use_container_width=True)
+        if os.path.exists('viz/04_correlation_heatmap.png'):
+            st.image('viz/04_correlation_heatmap.png', use_container_width=True)
         st.markdown("""
         **Description:** The correlation matrix reveals important relationships. Late-night usage shows
         stronger correlations with poor mental health than overall daily usage. Comparison content percentage
@@ -322,8 +322,8 @@ with tab_prep:
     
     with viz_tabs[4]:
         st.markdown("### Visualization 5: Late Night Usage vs. Sleep Quality")
-        if os.path.exists('C:/Users/gidye/Downloads/Project/viz/05_late_night_sleep.png'):
-            st.image('C:/Users/gidye/Downloads/Project/viz/05_late_night_sleep.png', use_container_width=True)
+        if os.path.exists('viz/05_late_night_sleep.png'):
+            st.image('viz/05_late_night_sleep.png', use_container_width=True)
         st.markdown("""
         **Description:** Late-night social media use shows a clear relationship with poor sleep quality.
         Users with more late-night usage tend to have higher sleep quality scores (where higher scores 
@@ -333,8 +333,8 @@ with tab_prep:
     
     with viz_tabs[5]:
         st.markdown("### Visualization 6: Gender Differences in Mental Health Outcomes")
-        if os.path.exists('C:/Users/gidye/Downloads/Project/viz/06_gender_differences.png'):
-            st.image('C:/Users/gidye/Downloads/Project/viz/06_gender_differences.png', use_container_width=True)
+        if os.path.exists('viz/06_gender_differences.png'):
+            st.image('viz/06_gender_differences.png', use_container_width=True)
         st.markdown("""
         **Description:** Gender differences emerge in mental health outcomes. Female users report
         slightly higher average anxiety scores, while male users show marginally higher depression scores.
@@ -344,8 +344,8 @@ with tab_prep:
     
     with viz_tabs[6]:
         st.markdown("### Visualization 7: Engagement Metrics Distribution")
-        if os.path.exists('C:/Users/gidye/Downloads/Project/viz/07_engagement_metrics.png'):
-            st.image('C:/Users/gidye/Downloads/Project/viz/07_engagement_metrics.png', use_container_width=True)
+        if os.path.exists('viz/07_engagement_metrics.png'):
+            st.image('viz/07_engagement_metrics.png', use_container_width=True)
         st.markdown("""
         **Description:** Engagement metrics show log-normal distributions, indicating that while most
         users have modest follower counts and engagement, a small subset achieves influencer status.
@@ -355,8 +355,8 @@ with tab_prep:
     
     with viz_tabs[7]:
         st.markdown("### Visualization 8: Life Satisfaction by Usage Intensity")
-        if os.path.exists('C:/Users/gidye/Downloads/Project/viz/08_life_satisfaction_usage.png'):
-            st.image('C:/Users/gidye/Downloads/Project/viz/08_life_satisfaction_usage.png', use_container_width=True)
+        if os.path.exists('viz/08_life_satisfaction_usage.png'):
+            st.image('viz/08_life_satisfaction_usage.png', use_container_width=True)
         st.markdown("""
         **Description:** Life satisfaction shows an inverted U-shaped relationship with usage intensity.
         Moderate users (2-4 hours daily) report the highest life satisfaction, while both very light
@@ -366,8 +366,8 @@ with tab_prep:
     
     with viz_tabs[8]:
         st.markdown("### Visualization 9: Cyberbullying Impact on Mental Health")
-        if os.path.exists('C:/Users/gidye/Downloads/Project/viz/09_cyberbullying_impact.png'):
-            st.image('C:/Users/gidye/Downloads/Project/viz/09_cyberbullying_impact.png', use_container_width=True)
+        if os.path.exists('viz/09_cyberbullying_impact.png'):
+            st.image('viz/09_cyberbullying_impact.png', use_container_width=True)
         st.markdown("""
         **Description:** Users who have experienced cyberbullying show dramatically worse mental health
         outcomes across all measured dimensions. They report higher depression and anxiety scores and
@@ -377,8 +377,8 @@ with tab_prep:
     
     with viz_tabs[9]:
         st.markdown("### Visualization 10: Support System & Help-Seeking Behavior")
-        if os.path.exists('C:/Users/gidye/Downloads/Project/viz/10_support_help_seeking.png'):
-            st.image('C:/Users/gidye/Downloads/Project/viz/10_support_help_seeking.png', use_container_width=True)
+        if os.path.exists('viz/10_support_help_seeking.png'):
+            st.image('viz/10_support_help_seeking.png', use_container_width=True)
         st.markdown("""
         **Description:** Individuals seeking professional help tend to have stronger support systems,
         suggesting that social support facilitates help-seeking. However, even among those with severe
@@ -388,8 +388,8 @@ with tab_prep:
     
     with viz_tabs[10]:
         st.markdown("### Visualization 11: Summary Dashboard")
-        if os.path.exists('C:/Users/gidye/Downloads/Project/viz/11_summary_dashboard.png'):
-            st.image('C:/Users/gidye/Downloads/Project/viz/11_summary_dashboard.png', use_container_width=True)
+        if os.path.exists('viz/11_summary_dashboard.png'):
+            st.image('viz/11_summary_dashboard.png', use_container_width=True)
         st.markdown("""
         **Description:** This comprehensive dashboard provides an at-a-glance overview of the study,
         showing total participants, average usage patterns, mental health scores, and demographic
