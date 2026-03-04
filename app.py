@@ -429,6 +429,18 @@ Principal Component Analysis (PCA) is a dimensionality reduction technique that 
         loadings = pca_loadings_table(results["pca_3d"], features)
         st.dataframe(loadings)
 
+        st.markdown("""
+            ### PCA Results Summary
+
+            The PCA analysis reduces the dimensionality of the dataset while preserving most of the important information contained in the original variables. The 2D and 3D PCA projections help visualize how users are distributed based on their behavioral and psychological features.
+
+            The 2D projection retains a significant percentage of the total variance in the dataset, allowing us to observe major patterns and groupings among users. The 3D projection retains even more variance and provides a more detailed representation of the dataset structure. These visualizations help reveal patterns that may not be easily visible in the original high-dimensional dataset.
+
+            The cumulative variance plot shows how much information is retained as additional principal components are included. Based on this analysis, a certain number of components are required to retain at least 95% of the dataset’s total variance. This demonstrates how PCA can effectively reduce dimensionality while preserving the majority of the information.
+
+            Overall, PCA helps simplify complex behavioral data while highlighting the most important variables that influence variation in the dataset. This makes it easier to visualize patterns, identify key features, and support further analysis such as clustering and predictive modeling.
+            """)
+
         st.markdown(f"[View PCA Code]({CODE_PCA_URL})")
 
 # =========================================================
@@ -447,6 +459,18 @@ Hierarchical clustering builds a tree-like structure showing how clusters merge 
 DBSCAN identifies clusters based on density and can detect noise or outliers.
 
 Each method has strengths depending on dataset structure.
+""")
+    
+    st.markdown("""
+### Clustering Methods and Distance Metrics
+
+Clustering is an unsupervised machine learning technique used to group similar data points together based on their characteristics. In this project, clustering helps identify patterns in social media usage behavior and how those patterns relate to mental health indicators such as depression, anxiety, sleep quality, and self-esteem. By grouping users with similar behavioral patterns, we can better understand how different types of social media engagement may be associated with different mental health outcomes.
+
+Three clustering algorithms are explored in this analysis: **K-Means**, **Hierarchical Clustering**, and **DBSCAN (Density-Based Spatial Clustering of Applications with Noise)**. K-Means clustering partitions the dataset into a predefined number of clusters by minimizing the distance between data points and their cluster centroids. Hierarchical clustering builds a tree-like structure called a dendrogram that shows how clusters merge over distance thresholds. DBSCAN groups points based on density and is particularly useful for detecting noise and outliers in the data.
+
+Most clustering algorithms rely on **distance metrics** to measure similarity between data points. The most commonly used metric is **Euclidean distance**, which measures the straight-line distance between two points in multi-dimensional space. In this project, Euclidean distance is used to determine how similar or different users are based on features such as social media usage hours, engagement levels, and psychological indicators. Shorter distances indicate more similar user behaviors, while larger distances indicate more distinct patterns.
+
+Clustering is useful in this project because it allows us to identify behavioral user groups without pre-defined labels. These groups can reveal patterns such as heavy social media users with higher anxiety levels or moderate users with healthier mental well-being. Understanding these patterns can help researchers better analyze the relationship between digital behavior and psychological health.
 """)
 
     st.markdown(f"""
@@ -504,6 +528,27 @@ Each method has strengths depending on dataset structure.
     fig = plot_dbscan_2d_3d(prep["X_pca"], clusters)
     st.pyplot(fig)
 
+    st.markdown("""
+### Clustering Results and Interpretation
+
+The clustering results reveal several distinct behavioral groups among users in the dataset. The **Silhouette Method** was used to determine optimal values for the number of clusters (K) in K-Means clustering. The silhouette score measures how similar a data point is to its own cluster compared to other clusters. Higher silhouette scores indicate better clustering structure. Based on this analysis, three different K values were evaluated to observe how cluster structures change.
+
+The K-Means visualizations show how users are grouped based on their social media behavior and psychological indicators. The centroids represent the average position of each cluster and indicate the typical behavior of users within that group. Clusters with higher average depression or anxiety scores tend to group users who spend more time on social media or engage in more social comparison behavior.
+
+Hierarchical clustering provides an alternative way to visualize relationships between users. The dendrogram shows how clusters merge step by step as the distance threshold increases. This hierarchical structure helps confirm whether the number of clusters chosen by K-Means is reasonable and reveals how closely related different behavioral groups are.
+
+DBSCAN clustering identifies clusters based on density rather than predefined cluster numbers. This method is particularly useful for detecting **outliers or noise points**, which may represent users whose social media behavior differs significantly from typical patterns. In this dataset, DBSCAN highlights some users who may have extreme usage behaviors or unique psychological profiles.
+
+Overall, the clustering results suggest that different patterns of social media engagement correspond to distinct mental health profiles. Some clusters represent moderate users with relatively balanced mental health indicators, while others capture heavier users who may experience higher levels of anxiety, depression, or sleep disruption.
+""")
+    st.markdown("""
+### Clustering Conclusions
+
+The clustering analysis provides valuable insight into how different patterns of social media usage relate to mental health outcomes. The results suggest that users can naturally be grouped into different behavioral categories based on their engagement levels, online habits, and psychological indicators. These clusters highlight that social media does not affect all users equally; instead, the impact depends on how individuals interact with digital platforms.
+
+From a broader perspective, the findings indicate that excessive or highly engaged social media usage may be associated with poorer mental health outcomes for some individuals. Identifying these behavioral groups can help researchers, policymakers, and technology designers better understand the potential risks of digital overuse. Ultimately, clustering techniques help reveal hidden patterns in complex behavioral data and provide meaningful insights into how technology use may influence psychological well-being.
+""")
+
     st.markdown(f"[View Clustering Code]({CODE_CLUSTER_URL})")
 
 # =========================================================
@@ -557,6 +602,28 @@ Dataset used
 
     fig = plot_rule_network(rules)
     st.pyplot(fig)
+
+    st.markdown("""
+### ARM Results and Interpretation
+
+The association rule mining analysis generated multiple rules that reveal patterns between social media behaviors and mental health indicators. The results were filtered based on thresholds for **support, confidence, and lift** to ensure that the rules identified represent meaningful relationships in the dataset.
+
+The top rules ranked by **support** highlight the most commonly occurring behavior combinations among users. These rules show which behavioral patterns frequently appear together in the dataset. Rules ranked by **confidence** indicate relationships that are highly predictive; in other words, when the condition occurs, the outcome is very likely to occur as well. Finally, rules ranked by **lift** highlight relationships that are significantly stronger than random chance, indicating potentially meaningful associations between behavioral factors.
+
+The network visualization provides an intuitive way to see how different variables are connected. Nodes represent behavioral factors or psychological indicators, while edges represent association rules between them. Stronger relationships appear more prominently in the network graph.
+
+Overall, the ARM results suggest that certain social media usage patterns tend to occur together with specific mental health indicators. For example, high usage combined with social comparison behaviors may be associated with higher anxiety or depression scores. These patterns help illustrate how digital behaviors may interact with psychological well-being.
+""")
+    
+    st.markdown("""
+### ARM Conclusions
+
+The association rule mining results provide insight into how different aspects of social media usage are interconnected with mental health indicators. By identifying patterns of behaviors that frequently occur together, ARM helps highlight potential risk factors related to excessive social media engagement.
+
+While association rules do not prove cause-and-effect relationships, they can reveal important behavioral patterns that may warrant further investigation. These insights can help researchers better understand how digital habits influence emotional well-being and may guide the development of healthier social media practices.
+
+Overall, ARM provides a powerful way to explore relationships within complex behavioral datasets and contributes to a deeper understanding of how online behaviors may relate to mental health outcomes.
+""")
 
     st.markdown(f"[View ARM Code]({CODE_ARM_URL})")
 
