@@ -83,7 +83,7 @@ with tab_intro:
     st.markdown("""
     ## Understanding the Digital Age's Impact on Mental Wellbeing
     
-    ### Paragraph 1: Background and Significance
+    Background and Significance:
     
     In the past decade, social media has transformed from a novel communication tool into an integral 
     part of daily life for billions of people worldwide. As of 2024, over 4.9 billion people actively 
@@ -96,7 +96,7 @@ with tab_intro:
     coincided with the explosive growth of social media, raising urgent questions that demand rigorous, 
     data-driven investigation.
     
-    ### Paragraph 2: The Mental Health Crisis
+    The Mental Health Crisis:
     
     Mental health disorders have reached epidemic proportions worldwide, with the World Health Organization 
     reporting that depression and anxiety cost the global economy approximately $1 trillion annually in 
@@ -108,7 +108,7 @@ with tab_intro:
     The American Psychological Association has documented correlations between excessive social media use 
     and increased rates of anxiety, depression, sleep disruption, body image issues, and diminished self-esteem.
     
-    ### Paragraph 3: Platform Features and Psychological Mechanisms
+    Platform Features and Psychological Mechanisms:
     
     Modern social media platforms employ sophisticated algorithms designed to maximize user engagement 
     through variable reward schedules, infinite scrolling, and personalized content delivery. These features, 
