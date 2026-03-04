@@ -81,20 +81,46 @@ with tab_intro:
         st.image(img2, use_container_width=True)
 
     st.markdown("""
-
-### Background
-
-Social media has become one of the most influential technologies in modern society. Billions of people use platforms such as Instagram, TikTok, Facebook, and YouTube daily for communication, entertainment, and information consumption. While these platforms provide benefits like connectivity and information access, researchers and public health organizations have increasingly raised concerns about their impact on mental wellbeing.
-
-### Psychological Effects
-
-Studies suggest that heavy social media usage may contribute to increased levels of anxiety, depression, poor sleep quality, and reduced self-esteem. Features such as infinite scrolling, algorithm-driven feeds, and social comparison mechanisms can influence user behavior and emotional wellbeing. Younger age groups appear particularly vulnerable to these effects due to higher engagement levels and developmental sensitivity to social validation.
-
-### Importance of Data Analysis
-
-Understanding the relationship between social media usage patterns and mental health requires systematic data analysis. Machine learning techniques such as Principal Component Analysis (PCA), clustering algorithms, and Association Rule Mining (ARM) allow us to uncover hidden structures and relationships in complex behavioral datasets. By applying these techniques, this project aims to identify behavioral patterns associated with different mental health outcomes and provide insights that may help guide healthier technology usage.
-
-""")
+    ## Understanding the Digital Age's Impact on Mental Wellbeing
+    
+    ### Paragraph 1: Background and Significance
+    
+    In the past decade, social media has transformed from a novel communication tool into an integral 
+    part of daily life for billions of people worldwide. As of 2024, over 4.9 billion people actively 
+    use social media platforms, spending an average of 2 hours and 31 minutes daily scrolling through 
+    feeds, posting updates, and consuming content. This dramatic shift in how humans interact and 
+    consume information has sparked critical questions about the psychological impact of constant 
+    digital connectivity. While social media platforms were designed to bring people closer together, 
+    mounting evidence suggests they may be contributing to a global mental health crisis, particularly 
+    among younger generations. The rise in depression, anxiety, and other mental health disorders has 
+    coincided with the explosive growth of social media, raising urgent questions that demand rigorous, 
+    data-driven investigation.
+    
+    ### Paragraph 2: The Mental Health Crisis
+    
+    Mental health disorders have reached epidemic proportions worldwide, with the World Health Organization 
+    reporting that depression and anxiety cost the global economy approximately $1 trillion annually in 
+    lost productivity. In the United States alone, the prevalence of depression among adults increased 
+    from 8.4% in 2018 to over 12.3% in 2024. Even more alarming is the trend among adolescents and young 
+    adults, where rates of major depressive episodes have surged by over 60% in the past decade. Research 
+    institutions including Johns Hopkins, Stanford, and the National Institutes of Health have identified 
+    multiple potential contributing factors, but social media emerges repeatedly as a significant variable. 
+    The American Psychological Association has documented correlations between excessive social media use 
+    and increased rates of anxiety, depression, sleep disruption, body image issues, and diminished self-esteem.
+    
+    ### Paragraph 3: Platform Features and Psychological Mechanisms
+    
+    Modern social media platforms employ sophisticated algorithms designed to maximize user engagement 
+    through variable reward schedules, infinite scrolling, and personalized content delivery. These features, 
+    while effective at retaining users, may trigger psychological responses similar to those seen in behavioral 
+    addictions. The constant availability of social comparison opportunities creates an environment where users 
+    perpetually measure their lives against curated, idealized representations of others' experiences. Features 
+    such as follower counts, like counters, and view metrics create quantifiable measures of social validation 
+    that can become sources of anxiety and obsession. Platforms like Instagram and TikTok, which prioritize 
+    visual content, have been particularly associated with body image concerns and appearance-based social 
+    comparison. The phenomenon of "FOMO" (fear of missing out) has been documented extensively, describing 
+    the anxiety individuals experience when they perceive others are having more rewarding experiences.
+    """)
 
     st.divider()
 
