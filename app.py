@@ -1,163 +1,121 @@
 import streamlit as st
 import pandas as pd
-import matplotlib.pyplot as plt
-import seaborn as sns
 import numpy as np
-from sklearn.decomposition import PCA
-from sklearn.preprocessing import StandardScaler
-from sklearn.cluster import KMeans
-from sklearn.naive_bayes import GaussianNB
-from sklearn.tree import DecisionTreeClassifier, plot_tree
-from sklearn.svm import SVC
-from sklearn.linear_model import LinearRegression
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import accuracy_score, classification_report, confusion_matrix, r2_score, mean_squared_error
-from mlxtend.frequent_patterns import apriori, association_rules
-from mlxtend.preprocessing import TransactionEncoder
+import matplotlib.pyplot as plt
 import os
 import warnings
-warnings.filterwarnings('ignore')
 
-# --- PAGE CONFIG ---
+warnings.filterwarnings("ignore")
+
+from code.pca_analysis import *
+from code.clustering_analysis import *
+from code.arm_analysis import *
+
+# =========================================================
+# GitHub Links
+# =========================================================
+
+REPO_URL = "https://github.com/sanikagidye/Social-Media-Usage-and-Mental-Health-Impact-Analysis"
+
+CLEANED_DATA_URL = f"{REPO_URL}/blob/main/data/cleaned/merged_social_mental_health.csv"
+CODE_PCA_URL = f"{REPO_URL}/blob/main/code/pca_analysis.py"
+CODE_CLUSTER_URL = f"{REPO_URL}/blob/main/code/clustering_analysis.py"
+CODE_ARM_URL = f"{REPO_URL}/blob/main/code/arm_analysis.py"
+APP_URL = f"{REPO_URL}/blob/main/app.py"
+
+# =========================================================
+# Page Config
+# =========================================================
+
 st.set_page_config(
-    page_title="Social Media & Mental Health Analysis", 
+    page_title="Social Media & Mental Health Analysis",
     layout="wide",
     page_icon="🧠"
 )
 
-# Custom CSS
-st.markdown("""
-    <style>
-    .main {padding: 0rem 1rem;}
-    h1 {color: #1f77b4; padding-bottom: 1rem;}
-    h2 {color: #2c3e50; padding-top: 1rem;}
-    .stTabs [data-baseweb="tab-list"] {gap: 8px;}
-    .stTabs [data-baseweb="tab"] {padding: 10px 20px;}
-    </style>
-""", unsafe_allow_html=True)
+# =========================================================
+# Load Data
+# =========================================================
 
-# --- DATA LOADING ---
 @st.cache_data
 def load_data():
-    if os.path.exists('data/cleaned/merged_social_mental_health.csv'):
-        return pd.read_csv('data/cleaned/merged_social_mental_health.csv')
+    path = "data/cleaned/merged_social_mental_health.csv"
+    if os.path.exists(path):
+        return pd.read_csv(path)
     return None
 
 df = load_data()
 
-# --- NAVIGATION TABS (Strict Rubric Names) ---
+# =========================================================
+# Tabs
+# =========================================================
+
 tab_intro, tab_prep, tab_pca, tab_clustering, tab_arm, tab_dt, tab_nb, tab_svm, tab_reg, tab_conc = st.tabs([
-    "Introduction", "Data Prep/EDA", "PCA", "Clustering", "ARM", 
-    "DT", "NB", "SVM", "Regression", "Conclusions"
+    "Introduction",
+    "Data Prep/EDA",
+    "PCA",
+    "Clustering",
+    "ARM",
+    "DT",
+    "NB",
+    "SVM",
+    "Regression",
+    "Conclusions"
 ])
 
-# --- 1) INTRODUCTION ---
-with tab_intro:
-    st.title("📖 Social Media Usage and Mental Health Impact Analysis")
-    
-    # Display summary dashboard if available
-    if os.path.exists('viz/Social-Media-Effects-on-Mental-Health1.jpg'):
-        st.image('viz/Social-Media-Effects-on-Mental-Health1.jpg', use_container_width=True)
-    
-    st.markdown("""
-    ## Understanding the Digital Age's Impact on Mental Wellbeing
-    
-    ### Background and Significance
-    
-    In the past decade, social media has transformed from a novel communication tool into an integral 
-    part of daily life for billions of people worldwide. As of 2024, over 4.9 billion people actively 
-    use social media platforms, spending an average of 2 hours and 31 minutes daily scrolling through 
-    feeds, posting updates, and consuming content. This dramatic shift in how humans interact and 
-    consume information has sparked critical questions about the psychological impact of constant 
-    digital connectivity. While social media platforms were designed to bring people closer together, 
-    mounting evidence suggests they may be contributing to a global mental health crisis, particularly 
-    among younger generations. The rise in depression, anxiety, and other mental health disorders has 
-    coincided with the explosive growth of social media, raising urgent questions that demand rigorous, 
-    data-driven investigation.
-    
-    ### The Mental Health Crisis
-    
-    Mental health disorders have reached epidemic proportions worldwide, with the World Health Organization 
-    reporting that depression and anxiety cost the global economy approximately $1 trillion annually in 
-    lost productivity. In the United States alone, the prevalence of depression among adults increased 
-    from 8.4% in 2018 to over 12.3% in 2024. Even more alarming is the trend among adolescents and young 
-    adults, where rates of major depressive episodes have surged by over 60% in the past decade. Research 
-    institutions including Johns Hopkins, Stanford, and the National Institutes of Health have identified 
-    multiple potential contributing factors, but social media emerges repeatedly as a significant variable.
-    The American Psychological Association has documented correlations between excessive social media use 
-    and increased rates of anxiety, depression, sleep disruption, body image issues, and diminished 
-    self-esteem. These findings have prompted calls for more comprehensive research into the mechanisms 
-    through which digital platforms affect mental wellbeing.
-    
-    ### Platform Features and Psychological Mechanisms
-    
-    Modern social media platforms employ sophisticated algorithms designed to maximize user engagement 
-    through variable reward schedules, infinite scrolling, and personalized content delivery. These 
-    features, while effective at retaining users, may trigger psychological responses similar to those 
-    seen in behavioral addictions. The constant availability of social comparison opportunities creates 
-    an environment where users perpetually measure their lives against curated, idealized representations 
-    of others' experiences. Features such as follower counts, like counters, and view metrics create 
-    quantifiable measures of social validation that can become sources of anxiety and obsession. 
-    Platforms like Instagram and TikTok, which prioritize visual content, have been particularly 
-    associated with body image concerns and appearance-based social comparison. The phenomenon of 
-    "FOMO" (fear of missing out) has been documented extensively, describing the anxiety individuals 
-    experience when they perceive others are having more rewarding experiences. Understanding these 
-    mechanisms is crucial for developing healthier relationship patterns with technology.
-    
-    ### Current Research and Gaps
-    
-    Existing research has established correlational relationships between social media use and mental 
-    health outcomes, but significant gaps remain in our understanding. Most studies have focused on 
-    adolescents, leaving questions about impacts across different age groups largely unexplored. The 
-    role of specific platform features, usage patterns, and content types in mental health outcomes 
-    requires more granular investigation. Furthermore, while correlation has been demonstrated, 
-    establishing causation remains challenging due to the complex, bidirectional nature of the relationship.
-    This project addresses these gaps by analyzing detailed usage patterns across demographics, examining 
-    specific platform features and their correlations with various mental health metrics, and employing 
-    machine learning techniques to identify the strongest predictors of mental health outcomes.
-    
-    ### Why This Research Matters
-    
-    The implications of this research extend far beyond academic interest. With over 4.9 billion social 
-    media users globally, even small negative effects on mental health translate to millions of affected 
-    individuals. Parents, educators, healthcare providers, and policymakers need evidence-based guidance 
-    to make informed decisions about social media use and regulation. Technology companies require data 
-    to design platforms that prioritize user wellbeing alongside engagement. Mental health professionals 
-    need to understand how digital behaviors intersect with traditional risk factors and treatment approaches.
-    This research aims to provide actionable insights that can inform individual behavior change, platform 
-    design improvements, therapeutic interventions, and public policy decisions.
-    """)
-    
-    st.divider()
-    
-    # Requirement: 10 Questions
-    st.subheader("🎯 10 Research Questions")
-    questions = [
-        "What is the correlation between daily social media usage time and mental health indicators such as depression, anxiety, and life satisfaction?",
-        "Do specific platforms (Instagram, TikTok, Facebook, Twitter, Snapchat, YouTube) differ in their associations with mental health outcomes?",
-        "How do different age groups experience the mental health impacts of social media differently?",
-        "What role do specific usage patterns (late-night usage, morning checking, session frequency) play in mental health outcomes?",
-        "Is there a relationship between the amount of comparison-based content consumed and self-esteem or body image scores?",
-        "Can we identify distinct user profiles through clustering analysis, and do these profiles correspond to different mental health risk levels?",
-        "What are the strongest predictors of poor mental health outcomes among social media users?",
-        "How does the follower-to-following ratio and engagement metrics correlate with validation-seeking behavior and mental health?",
-        "Can machine learning models accurately predict mental health severity categories based on social media usage patterns?",
-        "What recommendations can be derived from this analysis to promote healthier social media use and improve mental wellbeing?"
-    ]
-    for i, q in enumerate(questions, 1):
-        st.write(f"**{i}.** {q}")
-    
-    st.divider()
-    
-    st.markdown("""
-    **Data Sources:**
-    - Social Media Analytics API (user engagement and usage patterns)
-    - Mental Health Assessment API (validated psychological assessments)
-    - Population Health Statistics API (country-level mental health data)
-    
-    """)
+# =========================================================
+# INTRODUCTION
+# =========================================================
 
-# --- 2) DATA PREP / EDA ---
+with tab_intro:
+
+    st.title("Social Media Usage and Mental Health Analysis")
+
+    img1 = "viz/Social-Media-Effects-on-Mental-Health1.jpg"
+    img2 = "viz/11_summary_dashboard.png"
+
+    if os.path.exists(img1):
+        st.image(img1, use_container_width=True)
+
+    if os.path.exists(img2):
+        st.image(img2, use_container_width=True)
+
+    st.markdown("""
+
+### Background
+
+Social media has become one of the most influential technologies in modern society. Billions of people use platforms such as Instagram, TikTok, Facebook, and YouTube daily for communication, entertainment, and information consumption. While these platforms provide benefits like connectivity and information access, researchers and public health organizations have increasingly raised concerns about their impact on mental wellbeing.
+
+### Psychological Effects
+
+Studies suggest that heavy social media usage may contribute to increased levels of anxiety, depression, poor sleep quality, and reduced self-esteem. Features such as infinite scrolling, algorithm-driven feeds, and social comparison mechanisms can influence user behavior and emotional wellbeing. Younger age groups appear particularly vulnerable to these effects due to higher engagement levels and developmental sensitivity to social validation.
+
+### Importance of Data Analysis
+
+Understanding the relationship between social media usage patterns and mental health requires systematic data analysis. Machine learning techniques such as Principal Component Analysis (PCA), clustering algorithms, and Association Rule Mining (ARM) allow us to uncover hidden structures and relationships in complex behavioral datasets. By applying these techniques, this project aims to identify behavioral patterns associated with different mental health outcomes and provide insights that may help guide healthier technology usage.
+
+""")
+
+    st.divider()
+
+    st.subheader("Research Questions")
+
+    questions = [
+        "Is daily social media usage correlated with depression and anxiety?",
+        "Which platforms are associated with higher mental health risks?",
+        "Do younger users experience stronger mental health effects?",
+        "How does late-night social media use affect sleep quality?",
+        "Is social comparison linked to lower self-esteem?",
+        "Can clustering identify distinct behavioral user groups?",
+        "What predictors best explain poor mental health outcomes?",
+        "Does follower engagement affect validation-seeking behavior?",
+        "Can machine learning predict mental health severity?",
+        "What recommendations can improve digital wellbeing?"
+    ]
+
+    for i, q in enumerate(questions, 1):
+        st.write(f"{i}. {q}")
+
 with tab_prep:
     st.title("🔧 Data Gathering, Cleaning & Exploration")
     
@@ -400,54 +358,237 @@ with tab_prep:
         """)
 
 
-# --- 3) PCA ---
+
+
+        
+
+# =========================================================
+# PCA TAB
+# =========================================================
+
 with tab_pca:
-    st.title("🔍 Principal Component Analysis (PCA)")
-    
 
+    st.title("Principal Component Analysis")
 
-# --- 4) CLUSTERING ---
+    st.markdown("""
+Principal Component Analysis (PCA) is a dimensionality reduction technique that transforms correlated variables into a smaller set of uncorrelated variables called principal components. These components capture the directions of maximum variance in the data. PCA helps reduce dataset complexity, identify the most influential variables, and visualize high-dimensional datasets in lower dimensions such as 2D or 3D.
+""")
+
+    st.markdown(f"""
+**Dataset used**
+
+[Cleaned dataset link]({CLEANED_DATA_URL})
+""")
+
+    if df is not None:
+
+        X, features = prepare_pca_data(df)
+
+        st.subheader("Quantitative Data Used")
+        st.dataframe(X.head())
+
+        scaler, X_scaled = scale_data(X)
+
+        results = run_pca(X_scaled)
+
+        st.subheader("2D PCA Visualization")
+
+        fig = plot_pca_2d(results["X_pca_2d"], results["pca_2d"], df["depression_score"])
+        st.pyplot(fig)
+
+        variance_2d = results["pca_2d"].explained_variance_ratio_.sum()
+        st.success(f"Information retained in 2D: {variance_2d*100:.2f}%")
+
+        st.subheader("3D PCA Visualization")
+
+        fig = plot_pca_3d(results["X_pca_3d"], results["pca_3d"], df["depression_score"])
+        st.pyplot(fig)
+
+        variance_3d = results["pca_3d"].explained_variance_ratio_.sum()
+        st.success(f"Information retained in 3D: {variance_3d*100:.2f}%")
+
+        st.subheader("Components required for 95% variance")
+
+        fig = plot_cumulative_variance(results["cumulative_variance"], results["n_components_95"])
+        st.pyplot(fig)
+
+        st.success(f"{results['n_components_95']} components needed")
+
+        st.subheader("Top 3 Eigenvalues")
+
+        ev = results["eigenvalues"]
+
+        st.code(f"""
+1st: {ev[0]}
+2nd: {ev[1]}
+3rd: {ev[2]}
+""")
+
+        st.subheader("Important Variables (PCA Loadings)")
+
+        loadings = pca_loadings_table(results["pca_3d"], features)
+        st.dataframe(loadings)
+
+        st.markdown(f"[View PCA Code]({CODE_PCA_URL})")
+
+# =========================================================
+# CLUSTERING TAB
+# =========================================================
+
 with tab_clustering:
-    st.title("🎯 Clustering Analysis")
-    
 
+    st.title("Clustering Analysis")
 
-# --- 5) ARM ---
+    st.markdown("""
+### Clustering Methods Comparison
+
+K-Means clustering partitions data into K groups based on distance to cluster centroids.  
+Hierarchical clustering builds a tree-like structure showing how clusters merge over distance thresholds.  
+DBSCAN identifies clusters based on density and can detect noise or outliers.
+
+Each method has strengths depending on dataset structure.
+""")
+
+    st.markdown(f"""
+**Dataset used**
+
+[Cleaned dataset link]({CLEANED_DATA_URL})
+""")
+
+    prep = prep_clustering_data(df)
+
+    st.subheader("Original Labeled Data")
+
+    st.dataframe(prep["labeled_sample"])
+
+    st.subheader("Quantitative Dataset")
+
+    st.dataframe(prep["X_raw"].head())
+
+    st.success(f"PCA Variance Retained (3D): {prep['variance_retained']*100:.2f}%")
+
+    scores, top_k = silhouette_k_search(prep["X_pca"])
+
+    st.subheader("Silhouette Method")
+
+    fig = plot_silhouette_curve(range(2,11), scores)
+    st.pyplot(fig)
+
+    st.success(f"Top K values: {top_k}")
+
+    for k in top_k:
+
+        clusters, centroids = run_kmeans(prep["X_pca"], k)
+
+        fig = plot_kmeans_with_original_label_colors(
+            prep["X_pca"],
+            centroids,
+            k,
+            prep["labels"]
+        )
+
+        st.pyplot(fig)
+
+    st.subheader("Hierarchical Clustering")
+
+    fig = plot_dendrogram(prep["X_pca"])
+    st.pyplot(fig)
+
+    st.subheader("DBSCAN")
+
+    clusters, n_clusters, n_noise = run_dbscan(prep["X_pca"])
+
+    st.write("Clusters:", n_clusters)
+    st.write("Noise points:", n_noise)
+
+    fig = plot_dbscan_2d_3d(prep["X_pca"], clusters)
+    st.pyplot(fig)
+
+    st.markdown(f"[View Clustering Code]({CODE_CLUSTER_URL})")
+
+# =========================================================
+# ARM TAB
+# =========================================================
+
 with tab_arm:
-    st.title("🔗 Association Rule Mining (ARM)")
 
+    st.title("Association Rule Mining")
 
-# --- 6) DECISION TREES ---
+    st.markdown("""
+Association Rule Mining identifies relationships between variables that frequently occur together in a dataset.
+
+Support measures how often items appear together.  
+Confidence measures how often a rule is correct.  
+Lift measures how much more likely the rule occurs compared to random chance.
+
+The Apriori algorithm discovers frequent itemsets and then generates rules from them.
+""")
+
+    fig = plot_arm_overview_metrics()
+    st.pyplot(fig)
+
+    st.markdown(f"""
+Dataset used
+
+[Cleaned dataset link]({CLEANED_DATA_URL})
+""")
+
+    transactions, features = make_transactions(df)
+
+    st.subheader("Transaction Data Sample")
+
+    st.dataframe(transactions.head())
+
+    frequent_itemsets, rules = run_arm(transactions)
+
+    st.subheader("Top Rules by Support")
+
+    st.dataframe(format_rules_table(rules, "support"))
+
+    st.subheader("Top Rules by Confidence")
+
+    st.dataframe(format_rules_table(rules, "confidence"))
+
+    st.subheader("Top Rules by Lift")
+
+    st.dataframe(format_rules_table(rules, "lift"))
+
+    st.subheader("Association Network")
+
+    fig = plot_rule_network(rules)
+    st.pyplot(fig)
+
+    st.markdown(f"[View ARM Code]({CODE_ARM_URL})")
+
+# =========================================================
+# Placeholder Tabs
+# =========================================================
+
 with tab_dt:
-    st.title("🌳 Decision Tree Classification")
- 
-# --- 7) NAIVE BAYES ---
+    st.info("Decision Trees — Milestone 3")
+
 with tab_nb:
-    st.title("🎲 Naive Bayes Classification")
-    
+    st.info("Naive Bayes — Milestone 3")
 
-
-# --- 8) SVM ---
 with tab_svm:
-    st.title("⚡ Support Vector Machine (SVM)")
-    
+    st.info("SVM — Milestone 3")
 
-
-# --- 9) REGRESSION ---
 with tab_reg:
-    st.title("📊 Regression Analysis")
-    
- 
+    st.info("Regression — Milestone 3")
 
-# --- 10) CONCLUSIONS ---
 with tab_conc:
-    st.title("🎯 Conclusions")
-    
+    st.info("Final Conclusions — Final Milestone")
 
+# =========================================================
 # Footer
+# =========================================================
+
 st.markdown("---")
-st.markdown("""
-    <div style='text-align: center; color: #666; padding: 20px;'>
-        <p><strong>Social Media & Mental Health Analysis</strong></p>       
-    </div>
+
+st.markdown(f"""
+<center>
+Social Media & Mental Health Analysis<br>
+<a href="{REPO_URL}">GitHub Repository</a><br>
+<a href="{APP_URL}">View Full App Code</a>
+</center>
 """, unsafe_allow_html=True)
