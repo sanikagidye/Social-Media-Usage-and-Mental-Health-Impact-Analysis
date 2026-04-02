@@ -10,7 +10,12 @@ warnings.filterwarnings("ignore")
 from code.pca_analysis import *
 from code.clustering_analysis import *
 from code.arm_analysis import *
-
+from code.nb_analysis import *
+from code.dt_analysis import *
+from code.regression_analysis import *
+import code.nb_analysis as nb_analysis
+import code.dt_analysis as dt_analysis
+import code.regression_analysis as regression_analysis
 # =========================================================
 # GitHub Links
 # =========================================================
@@ -22,6 +27,9 @@ CODE_PCA_URL = f"{REPO_URL}/blob/main/code/pca_analysis.py"
 CODE_CLUSTER_URL = f"{REPO_URL}/blob/main/code/clustering_analysis.py"
 CODE_ARM_URL = f"{REPO_URL}/blob/main/code/arm_analysis.py"
 APP_URL = f"{REPO_URL}/blob/main/app.py"
+CODE_NB_URL = f"{REPO_URL}/blob/main/code/nb_analysis.py"
+CODE_DT_URL = f"{REPO_URL}/blob/main/code/dt_analysis.py"
+CODE_REG_URL = f"{REPO_URL}/blob/main/code/regression_analysis.py"
 
 # =========================================================
 # Page Config
@@ -45,6 +53,54 @@ def load_data():
     return None
 
 df = load_data()
+
+
+def build_split_summary(X_train, X_test, y_train, y_test):
+    return pd.DataFrame(
+        [
+            {"Subset": "Training features", "Rows": len(X_train), "Columns": X_train.shape[1]},
+            {"Subset": "Testing features", "Rows": len(X_test), "Columns": X_test.shape[1]},
+            {"Subset": "Training labels", "Rows": len(y_train), "Columns": 1},
+            {"Subset": "Testing labels", "Rows": len(y_test), "Columns": 1},
+        ]
+    )
+
+
+def plot_disjoint_split(train_size, test_size, title="Disjoint Train/Test Split"):
+    fig, ax = plt.subplots(figsize=(8, 2.8))
+    total = train_size + test_size
+    ax.barh(["Rows"], [train_size], color="#4C78A8", label="Training")
+    ax.barh(["Rows"], [test_size], left=[train_size], color="#F58518", label="Testing")
+    ax.text(train_size / 2, 0, f"Train\n{train_size}", ha="center", va="center", color="white", fontweight="bold")
+    ax.text(train_size + (test_size / 2), 0, f"Test\n{test_size}", ha="center", va="center", color="white", fontweight="bold")
+    ax.set_xlim(0, total)
+    ax.set_xlabel("Number of rows")
+    ax.set_title(title, fontweight="bold")
+    ax.spines[["top", "right", "left"]].set_visible(False)
+    ax.legend(loc="upper center", ncol=2, frameon=False)
+    plt.tight_layout()
+    return fig
+
+
+def dataframe_snapshot_figure(df_snapshot, title):
+    fig, ax = plt.subplots(figsize=(12, 2.8 + 0.45 * min(len(df_snapshot), 8)))
+    ax.axis("off")
+    ax.set_title(title, fontweight="bold", pad=12)
+    display_df = df_snapshot.copy()
+    for col in display_df.columns:
+        if pd.api.types.is_bool_dtype(display_df[col]):
+            display_df[col] = display_df[col].map({True: "True", False: "False"})
+    table = ax.table(
+        cellText=display_df.values,
+        colLabels=display_df.columns,
+        cellLoc="center",
+        loc="center"
+    )
+    table.auto_set_font_size(False)
+    table.set_fontsize(8)
+    table.scale(1, 1.35)
+    plt.tight_layout()
+    return fig
 
 # =========================================================
 # Tabs
@@ -81,20 +137,55 @@ with tab_intro:
         st.image(img2, use_container_width=True)
 
     st.markdown("""
+    ## Understanding the Digital Age's Impact on Mental Wellbeing
+    
+    Background and Significance:
+    
+    In the past decade, social media has transformed from a novel communication tool into an integral 
+    part of daily life for billions of people worldwide. As of 2024, over 4.9 billion people actively 
+    use social media platforms, spending an average of 2 hours and 31 minutes daily scrolling through 
+    feeds, posting updates, and consuming content. This dramatic shift in how humans interact and 
+    consume information has sparked critical questions about the psychological impact of constant 
+    digital connectivity. While social media platforms were designed to bring people closer together, 
+    mounting evidence suggests they may be contributing to a global mental health crisis, particularly 
+    among younger generations. The rise in depression, anxiety, and other mental health disorders has 
+    coincided with the explosive growth of social media, raising urgent questions that demand rigorous, 
+    data-driven investigation.
+    
+    The Mental Health Crisis:
+    
+    Mental health disorders have reached epidemic proportions worldwide, with the World Health Organization 
+    reporting that depression and anxiety cost the global economy approximately $1 trillion annually in 
+    lost productivity. In the United States alone, the prevalence of depression among adults increased 
+    from 8.4% in 2018 to over 12.3% in 2024. Even more alarming is the trend among adolescents and young 
+    adults, where rates of major depressive episodes have surged by over 60% in the past decade. Research 
+    institutions including Johns Hopkins, Stanford, and the National Institutes of Health have identified 
+    multiple potential contributing factors, but social media emerges repeatedly as a significant variable. 
+    The American Psychological Association has documented correlations between excessive social media use 
+    and increased rates of anxiety, depression, sleep disruption, body image issues, and diminished self-esteem.
+    
+    Platform Features and Psychological Mechanisms:
+    
+    Modern social media platforms employ sophisticated algorithms designed to maximize user engagement 
+    through variable reward schedules, infinite scrolling, and personalized content delivery. These features, 
+    while effective at retaining users, may trigger psychological responses similar to those seen in behavioral 
+    addictions. The constant availability of social comparison opportunities creates an environment where users 
+    perpetually measure their lives against curated, idealized representations of others' experiences. Features 
+    such as follower counts, like counters, and view metrics create quantifiable measures of social validation 
+    that can become sources of anxiety and obsession. Platforms like Instagram and TikTok, which prioritize 
+    visual content, have been particularly associated with body image concerns and appearance-based social 
+    comparison. The phenomenon of "FOMO" (fear of missing out) has been documented extensively, describing 
+    the anxiety individuals experience when they perceive others are having more rewarding experiences.
 
-### Background
+    Why This Topic Matters:
 
-Social media has become one of the most influential technologies in modern society. Billions of people use platforms such as Instagram, TikTok, Facebook, and YouTube daily for communication, entertainment, and information consumption. While these platforms provide benefits like connectivity and information access, researchers and public health organizations have increasingly raised concerns about their impact on mental wellbeing.
-
-### Psychological Effects
-
-Studies suggest that heavy social media usage may contribute to increased levels of anxiety, depression, poor sleep quality, and reduced self-esteem. Features such as infinite scrolling, algorithm-driven feeds, and social comparison mechanisms can influence user behavior and emotional wellbeing. Younger age groups appear particularly vulnerable to these effects due to higher engagement levels and developmental sensitivity to social validation.
-
-### Importance of Data Analysis
-
-Understanding the relationship between social media usage patterns and mental health requires systematic data analysis. Machine learning techniques such as Principal Component Analysis (PCA), clustering algorithms, and Association Rule Mining (ARM) allow us to uncover hidden structures and relationships in complex behavioral datasets. By applying these techniques, this project aims to identify behavioral patterns associated with different mental health outcomes and provide insights that may help guide healthier technology usage.
-
-""")
+    This topic matters because social media is no longer a small part of life for most people; it shapes how people 
+    relax, communicate, study, work, and judge themselves. That means the effects of unhealthy use patterns can ripple 
+    outward into sleep, school performance, relationships, confidence, and everyday wellbeing. Understanding those 
+    patterns can help families, schools, health professionals, and platform designers make better choices that support 
+    healthier digital habits. It can also help users recognize warning signs earlier and build routines that protect 
+    mental wellbeing without requiring people to disconnect completely from online life.
+    """)
 
     st.divider()
 
@@ -368,10 +459,10 @@ with tab_prep:
 
 with tab_pca:
 
-    st.title("Principal Component Analysis")
+    st.title("Principal Component Analysis (PCA)")
 
     st.markdown("""
-Principal Component Analysis (PCA) is a dimensionality reduction technique that transforms correlated variables into a smaller set of uncorrelated variables called principal components. These components capture the directions of maximum variance in the data. PCA helps reduce dataset complexity, identify the most influential variables, and visualize high-dimensional datasets in lower dimensions such as 2D or 3D.
+Principal Component Analysis (PCA) is a dimensionality reduction technique that transforms correlated variables into a smaller set of uncorrelated variables called principal components. These components capture the directions of maximum variance in the data. PCA helps reduce dataset complexity, identify the most influential variables, and visualize high-dimensional datasets in lower dimensions such as 2D or 3D. In this project, PCA is used to simplify the social media and mental health dataset so that important behavior patterns can be visualized more clearly while preserving most of the information in the original data.
 """)
 
     st.markdown(f"""
@@ -382,15 +473,91 @@ Principal Component Analysis (PCA) is a dimensionality reduction technique that 
 
     if df is not None:
 
+        # =========================================================
+        # Data Selection
+        # =========================================================
         X, features = prepare_pca_data(df)
 
-        st.subheader("Quantitative Data Used")
-        st.dataframe(X.head())
+        st.subheader("Selected Quantitative Dataset for PCA")
+
+        st.markdown("""
+PCA can only be applied to **quantitative variables**, so all categorical columns such as user ID, age group, gender, and platform are excluded. 
+The dataset below shows the numerical features that were selected and prepared for PCA.
+""")
+
+        st.markdown("### BEFORE PCA: Original Quantitative Dataset")
+        st.dataframe(X.head(10))
+
+        prepared_csv = X.to_csv(index=False).encode("utf-8")
+        st.download_button(
+            label="Download Prepared PCA Data (CSV)",
+            data=prepared_csv,
+            file_name="prepared_pca_data.csv",
+            mime="text/csv"
+        )
+
+        # =========================================================
+        # Normalization
+        # =========================================================
+        st.subheader("Normalization with StandardScaler")
+
+        st.markdown("""
+Before applying PCA, the numerical data is normalized using **StandardScaler**. This step ensures that each feature has mean 0 and standard deviation 1. 
+Normalization is necessary because PCA is sensitive to scale, and variables with larger numeric ranges could dominate the principal components if scaling is skipped.
+""")
 
         scaler, X_scaled = scale_data(X)
 
+        col1, col2 = st.columns(2)
+        with col1:
+            st.markdown("**Before Scaling**")
+            st.write(f"Mean: {X.mean().mean():.2f}")
+            st.write(f"Average Std Dev: {X.std().mean():.2f}")
+        with col2:
+            st.markdown("**After Scaling**")
+            st.write(f"Mean: {X_scaled.mean():.2f}")
+            st.write(f"Std Dev: {X_scaled.std():.2f}")
+
+        # =========================================================
+        # PCA Transform
+        # =========================================================
+        st.subheader("Applying PCA")
+
+        st.markdown("""
+After scaling, PCA is applied twice:
+- once with **2 components** for 2D visualization
+- once with **3 components** for 3D visualization
+
+The transformed dataset no longer contains the original variables directly. Instead, it contains new variables called **principal components** (PC1, PC2, PC3), which summarize most of the variation in the original data.
+""")
+
         results = run_pca(X_scaled)
 
+        X_pca_2 = results["X_pca_2d"]
+        X_pca_3 = results["X_pca_3d"]
+
+        st.markdown("### AFTER PCA: Transformed Dataset (2 Components)")
+        pca_df_2 = pd.DataFrame(X_pca_2, columns=["PC1", "PC2"])
+        st.dataframe(pca_df_2.head(10))
+
+        st.markdown("### AFTER PCA: Transformed Dataset (3 Components)")
+        pca_df_3 = pd.DataFrame(X_pca_3, columns=["PC1", "PC2", "PC3"])
+        st.dataframe(pca_df_3.head(10))
+
+        st.markdown("""
+### PCA Transformation Explanation
+
+Principal Component Analysis transforms the original dataset into a new coordinate system where each axis represents a principal component. 
+These components are weighted combinations of the original variables and are ordered by how much variance they explain. 
+This means the first component captures the most variation in the dataset, the second captures the next most, and so on.
+
+In this project, PCA helps simplify a large behavioral dataset into a smaller number of dimensions so that patterns related to social media usage 
+and mental health can be visualized and interpreted more effectively.
+""")
+
+        # =========================================================
+        # 2D PCA Visualization
+        # =========================================================
         st.subheader("2D PCA Visualization")
 
         fig = plot_pca_2d(results["X_pca_2d"], results["pca_2d"], df["depression_score"])
@@ -399,6 +566,9 @@ Principal Component Analysis (PCA) is a dimensionality reduction technique that 
         variance_2d = results["pca_2d"].explained_variance_ratio_.sum()
         st.success(f"Information retained in 2D: {variance_2d*100:.2f}%")
 
+        # =========================================================
+        # 3D PCA Visualization
+        # =========================================================
         st.subheader("3D PCA Visualization")
 
         fig = plot_pca_3d(results["X_pca_3d"], results["pca_3d"], df["depression_score"])
@@ -407,39 +577,65 @@ Principal Component Analysis (PCA) is a dimensionality reduction technique that 
         variance_3d = results["pca_3d"].explained_variance_ratio_.sum()
         st.success(f"Information retained in 3D: {variance_3d*100:.2f}%")
 
-        st.subheader("Components required for 95% variance")
+        # =========================================================
+        # 95% Variance
+        # =========================================================
+        st.subheader("How Many Components Are Needed to Retain 95% Variance?")
 
         fig = plot_cumulative_variance(results["cumulative_variance"], results["n_components_95"])
         st.pyplot(fig)
 
-        st.success(f"{results['n_components_95']} components needed")
+        st.success(f"{results['n_components_95']} components are needed to retain at least 95% of the variance.")
 
+        # =========================================================
+        # Eigenvalues
+        # =========================================================
         st.subheader("Top 3 Eigenvalues")
 
         ev = results["eigenvalues"]
 
         st.code(f"""
-1st: {ev[0]}
-2nd: {ev[1]}
-3rd: {ev[2]}
+Top 3 Eigenvalues:
+1st: {ev[0]:.4f}
+2nd: {ev[1]:.4f}
+3rd: {ev[2]:.4f}
 """)
 
+        ev_df = eigenvalue_table(ev, results["pca_full"].explained_variance_ratio_, top_n=10)
+        st.dataframe(ev_df)
+
+        # =========================================================
+        # Loadings / Important Variables
+        # =========================================================
         st.subheader("Important Variables (PCA Loadings)")
+
+        st.markdown("""
+The table below shows the variables with the strongest contributions to each principal component. 
+Higher absolute loading values mean that a feature has more influence on that component. 
+This helps identify which original variables are most important in explaining variation in the dataset.
+""")
 
         loadings = pca_loadings_table(results["pca_3d"], features)
         st.dataframe(loadings)
 
-        st.markdown("""
-            ### PCA Results Summary
+        # =========================================================
+        # PCA Summary
+        # =========================================================
+        st.markdown(f"""
+### PCA Results Summary
 
-            The PCA analysis reduces the dimensionality of the dataset while preserving most of the important information contained in the original variables. The 2D and 3D PCA projections help visualize how users are distributed based on their behavioral and psychological features.
+The PCA analysis reduces the dimensionality of the dataset while preserving most of the important information contained in the original variables. 
+The 2D and 3D PCA projections help visualize how users are distributed based on their behavioral and psychological features.
 
-            The 2D projection retains a significant percentage of the total variance in the dataset, allowing us to observe major patterns and groupings among users. The 3D projection retains even more variance and provides a more detailed representation of the dataset structure. These visualizations help reveal patterns that may not be easily visible in the original high-dimensional dataset.
+The 2D projection retains **{variance_2d*100:.2f}%** of the total variance in the dataset, allowing us to observe major patterns and broad structure. 
+The 3D projection retains **{variance_3d*100:.2f}%** of the total variance and provides a more detailed representation of the dataset.
 
-            The cumulative variance plot shows how much information is retained as additional principal components are included. Based on this analysis, a certain number of components are required to retain at least 95% of the dataset’s total variance. This demonstrates how PCA can effectively reduce dimensionality while preserving the majority of the information.
+The cumulative variance analysis shows that **{results['n_components_95']} components** are needed to retain at least 95% of the information in the dataset. 
+This demonstrates that PCA can reduce dimensionality while preserving the majority of the original data’s structure.
 
-            Overall, PCA helps simplify complex behavioral data while highlighting the most important variables that influence variation in the dataset. This makes it easier to visualize patterns, identify key features, and support further analysis such as clustering and predictive modeling.
-            """)
+Overall, PCA plays an important role in this project by simplifying a complex social media and mental health dataset into a smaller number of informative dimensions. 
+This makes it easier to visualize patterns, understand important variables, and support further analyses such as clustering and predictive modeling.
+""")
 
         st.markdown(f"[View PCA Code]({CODE_PCA_URL})")
 
@@ -554,97 +750,661 @@ From a broader perspective, the findings indicate that excessive or highly engag
 # =========================================================
 # ARM TAB
 # =========================================================
-
 with tab_arm:
 
-    st.title("Association Rule Mining")
+    st.title("Association Rule Mining (ARM)")
+
+    # =========================================================
+    # (a) Overview
+    # =========================================================
+    st.subheader("(a) Overview")
 
     st.markdown("""
-Association Rule Mining identifies relationships between variables that frequently occur together in a dataset.
+Association Rule Mining (ARM) is a data mining technique used to discover relationships between variables that frequently occur together in a dataset. 
+Instead of predicting a target label, ARM looks for **patterns of co-occurrence**. In this project, ARM is used to identify combinations of social 
+media usage behaviors and mental health indicators that tend to appear together across users.
 
-Support measures how often items appear together.  
-Confidence measures how often a rule is correct.  
-Lift measures how much more likely the rule occurs compared to random chance.
+An **association rule** has the form **A → B**, which means that when condition A is present, condition B is more likely to occur. 
+For example, a rule might suggest that users with high daily social media usage and high late-night activity are more likely to also have high anxiety. 
+These rules help uncover interpretable behavioral patterns in the data.
 
-The Apriori algorithm discovers frequent itemsets and then generates rules from them.
+Three important rule-quality measures are used:
+
+- **Support**: how often a combination of items appears in the dataset.
+- **Confidence**: how often the rule is true when the left-hand side occurs.
+- **Lift**: how much stronger the rule is compared to random chance. A lift greater than 1 suggests a meaningful positive association.
+
+The **Apriori algorithm** is used to generate these rules. Apriori first finds frequent itemsets that occur together often enough, then builds 
+association rules from them. It works efficiently by using the idea that if an itemset is frequent, then all of its subsets must also be frequent.
 """)
 
-    fig = plot_arm_overview_metrics()
-    st.pyplot(fig)
+    # Image 1
+    st.markdown("### ARM Concept Image 1")
+    fig1 = plot_arm_overview_metrics()
+    st.pyplot(fig1)
+
+    # Image 2
+    st.markdown("### ARM Concept Image 2")
+    fig2, ax2 = plt.subplots(figsize=(8, 5))
+    ax2.bar(["Support", "Confidence", "Lift"], [0.2, 0.6, 1.4])
+    ax2.set_title("Understanding Support, Confidence, and Lift", fontweight="bold")
+    ax2.set_ylabel("Illustrative Value")
+    ax2.grid(axis="y", alpha=0.3)
+    st.pyplot(fig2)
 
     st.markdown(f"""
-Dataset used
-
+**Dataset used:**  
 [Cleaned dataset link]({CLEANED_DATA_URL})
+
+**Code link:**  
+[View ARM Code]({CODE_ARM_URL})
 """)
 
+    st.divider()
+
+    # =========================================================
+    # (b) Data Prep
+    # =========================================================
+    st.subheader("(b) Data Prep")
+
+    st.markdown("""
+Association Rule Mining requires **unlabeled transaction data**, where each row represents one transaction and each column records whether a condition is present.  
+The original social-media dataset is not in that format because it contains raw numeric values such as usage hours, depression score, anxiety score, late-night hours, and self-esteem score.  
+Before ARM can be applied, those raw values must be transformed into **boolean transaction features**.
+
+For this project, the transformation step was: **source variable -> threshold or rule -> True/False transaction feature**.  
+That means the original mixed-format dataset is converted into the item-presence structure required by Apriori and association rule mining.  
+The tables below show the source columns used, the exact rules applied, and the final transaction-format dataframe created from them.
+""")
+
+    arm_source_cols = [
+        "daily_usage_hours",
+        "depression_score",
+        "anxiety_score",
+        "late_night_hours",
+        "self_esteem_score",
+        "comparison_content_pct",
+        "cyberbullying_experienced",
+        "sleep_quality_score",
+    ]
+    arm_before = df[arm_source_cols].head(10).copy()
+
+    threshold_df = pd.DataFrame(
+        [
+            {"Original column": "daily_usage_hours", "Rule used": "above dataset median", "Transaction feature": "high_usage"},
+            {"Original column": "depression_score", "Rule used": "> 14", "Transaction feature": "high_depression"},
+            {"Original column": "anxiety_score", "Rule used": "> 10", "Transaction feature": "high_anxiety"},
+            {"Original column": "late_night_hours", "Rule used": "> 1.5", "Transaction feature": "late_night_user"},
+            {"Original column": "self_esteem_score", "Rule used": "< 25", "Transaction feature": "low_self_esteem"},
+            {"Original column": "comparison_content_pct", "Rule used": "> 40", "Transaction feature": "high_comparison"},
+            {"Original column": "cyberbullying_experienced", "Rule used": "== 'Yes'", "Transaction feature": "cyberbullying_yes"},
+            {"Original column": "sleep_quality_score", "Rule used": "> 10", "Transaction feature": "poor_sleep"},
+        ]
+    )
+
+    st.markdown("### Transformation Rules Used")
+    st.dataframe(threshold_df, use_container_width=True)
+
     transactions, features = make_transactions(df)
+    arm_after = transactions.head(10).copy()
 
-    st.subheader("Transaction Data Sample")
+    st.markdown("### BEFORE: Source Columns Used for ARM")
+    before_col1, before_col2 = st.columns(2)
+    with before_col1:
+        st.dataframe(arm_before, use_container_width=True)
+    with before_col2:
+        st.pyplot(dataframe_snapshot_figure(arm_before.head(6), "Before Transformation"))
 
-    st.dataframe(transactions.head())
+    st.markdown("### AFTER: Transaction Dataset Used by Apriori")
+    after_col1, after_col2 = st.columns(2)
+    with after_col1:
+        st.dataframe(arm_after, use_container_width=True)
+    with after_col2:
+        st.pyplot(dataframe_snapshot_figure(arm_after.head(6), "After Transformation"))
 
-    frequent_itemsets, rules = run_arm(transactions)
+    st.caption("The 'before' sample contains raw numeric and categorical values. The 'after' sample contains only boolean transaction features, which is the format required by ARM.")
 
-    st.subheader("Top Rules by Support")
+    st.markdown("### Visualization of Transaction Features")
+    fig3, ax3 = plt.subplots(figsize=(10, 5))
+    transactions.sum().plot(kind="bar", ax=ax3)
+    ax3.set_title("Frequency of Transaction Features", fontweight="bold")
+    ax3.set_ylabel("Count of True Values")
+    ax3.set_xlabel("Transaction Features")
+    ax3.grid(axis="y", alpha=0.3)
+    st.pyplot(fig3)
 
-    st.dataframe(format_rules_table(rules, "support"))
+    sample_csv = transactions.head(200).to_csv(index=False).encode("utf-8")
+    st.download_button(
+        label="Download ARM Sample Transactions (CSV)",
+        data=sample_csv,
+        file_name="arm_transactions_sample.csv",
+        mime="text/csv"
+    )
 
-    st.subheader("Top Rules by Confidence")
+    source_csv = arm_before.to_csv(index=False).encode("utf-8")
+    st.download_button(
+        label="Download ARM Source Sample (CSV)",
+        data=source_csv,
+        file_name="arm_source_sample.csv",
+        mime="text/csv"
+    )
 
-    st.dataframe(format_rules_table(rules, "confidence"))
+    st.divider()
 
-    st.subheader("Top Rules by Lift")
+    # =========================================================
+    # (c) Code ARM
+    # =========================================================
+    st.subheader("(c) Code ARM")
+    st.markdown(f"[View ARM Code]({CODE_ARM_URL})")
 
-    st.dataframe(format_rules_table(rules, "lift"))
+    # =========================================================
+    # (d) Results
+    # =========================================================
+    st.subheader("(d) Results")
 
-    st.subheader("Association Network")
+    min_support = 0.05
+    min_confidence = 0.30
+    min_lift = 1.00
 
-    fig = plot_rule_network(rules)
-    st.pyplot(fig)
+    st.write(f"**Thresholds used:** support ≥ {min_support}, confidence ≥ {min_confidence}, lift ≥ {min_lift}")
+
+    frequent_itemsets, rules = run_arm(
+        transactions,
+        min_support=min_support,
+        min_confidence=min_confidence,
+        min_lift=min_lift
+    )
+
+    if rules.empty:
+        st.warning("No rules found. Try lowering thresholds.")
+    else:
+        st.success(f"Generated {len(rules)} association rules")
+
+        st.markdown("### Top 15 Rules by Support")
+        st.dataframe(format_rules_table(rules, "support", 15))
+
+        st.markdown("### Top 15 Rules by Confidence")
+        st.dataframe(format_rules_table(rules, "confidence", 15))
+
+        st.markdown("### Top 15 Rules by Lift")
+        st.dataframe(format_rules_table(rules, "lift", 15))
+
+        st.markdown("### Association Network Visualization")
+        fig4 = plot_rule_network(rules, top_n=20)
+        st.pyplot(fig4)
 
     st.markdown("""
 ### ARM Results and Interpretation
 
-The association rule mining analysis generated multiple rules that reveal patterns between social media behaviors and mental health indicators. The results were filtered based on thresholds for **support, confidence, and lift** to ensure that the rules identified represent meaningful relationships in the dataset.
+The association rule mining analysis generated multiple rules that reveal patterns between social media behaviors and mental health indicators. 
+The rules were filtered using thresholds for support, confidence, and lift so that only meaningful and interpretable relationships were retained.
 
-The top rules ranked by **support** highlight the most commonly occurring behavior combinations among users. These rules show which behavioral patterns frequently appear together in the dataset. Rules ranked by **confidence** indicate relationships that are highly predictive; in other words, when the condition occurs, the outcome is very likely to occur as well. Finally, rules ranked by **lift** highlight relationships that are significantly stronger than random chance, indicating potentially meaningful associations between behavioral factors.
+The top rules by **support** show the most common co-occurring conditions in the dataset. The top rules by **confidence** show patterns that are most 
+predictive, meaning that when the antecedent happens, the consequent is very likely to happen as well. The top rules by **lift** reveal the strongest 
+associations beyond what would be expected by random chance.
 
-The network visualization provides an intuitive way to see how different variables are connected. Nodes represent behavioral factors or psychological indicators, while edges represent association rules between them. Stronger relationships appear more prominently in the network graph.
+The network visualization makes it easier to see which behavioral and psychological factors are connected. Some rules may highlight how high usage, 
+late-night use, comparison behavior, poor sleep, and elevated anxiety or depression tend to appear together.
 
-Overall, the ARM results suggest that certain social media usage patterns tend to occur together with specific mental health indicators. For example, high usage combined with social comparison behaviors may be associated with higher anxiety or depression scores. These patterns help illustrate how digital behaviors may interact with psychological well-being.
+Overall, ARM provides interpretable evidence of how different social media habits may cluster together with mental health risk indicators.
 """)
-    
+
+    # =========================================================
+    # (e) Conclusions
+    # =========================================================
+    st.subheader("(e) Conclusions")
+
     st.markdown("""
-### ARM Conclusions
+Association Rule Mining helps translate complex behavioral data into simple, understandable relationship patterns. In this project, ARM shows that 
+certain social media behaviors do not appear in isolation; instead, they often co-occur with other risk-related behaviors and mental health indicators.
 
-The association rule mining results provide insight into how different aspects of social media usage are interconnected with mental health indicators. By identifying patterns of behaviors that frequently occur together, ARM helps highlight potential risk factors related to excessive social media engagement.
+From a topic perspective, these rules suggest that mental health risks associated with social media may emerge through combinations of habits such as 
+heavy use, late-night use, comparison-focused content, and poor sleep. These findings do not prove causation, but they do help identify combinations 
+of behaviors that may deserve closer attention.
 
-While association rules do not prove cause-and-effect relationships, they can reveal important behavioral patterns that may warrant further investigation. These insights can help researchers better understand how digital habits influence emotional well-being and may guide the development of healthier social media practices.
-
-Overall, ARM provides a powerful way to explore relationships within complex behavioral datasets and contributes to a deeper understanding of how online behaviors may relate to mental health outcomes.
+Overall, ARM contributes to the project by providing a transparent and interpretable way to uncover behavioral patterns that relate social media usage 
+to mental health outcomes.
 """)
-
-    st.markdown(f"[View ARM Code]({CODE_ARM_URL})")
 
 # =========================================================
 # Placeholder Tabs
 # =========================================================
 
 with tab_dt:
-    st.info("Decision Trees — Milestone 3")
+    st.title("Decision Tree Classification")
+
+    st.subheader("(a) Overview")
+    st.markdown("""
+Decision Trees are supervised learning models that predict a class by repeatedly splitting the data into smaller groups.  
+Each split asks a question about one feature, such as whether late-night social media use is above a threshold, and sends the row down one branch or another.  
+This creates a structure with a **root node**, internal decision nodes, and **leaf nodes** that store the final prediction.
+
+A split is judged using **Gini impurity** or **Entropy**, which both measure how mixed the class labels are inside a node.  
+**Information Gain** tells us how much that uncertainty is reduced after a split, so a larger value means a better split.  
+For example, if a parent node has entropy `1.00` and the weighted child entropy after a split is `0.40`, then the information gain is `1.00 - 0.40 = 0.60`.
+
+It is possible to create an enormous number of trees because there are many possible feature choices, split thresholds, stopping depths, and pruning decisions.  
+That is why Decision Trees need guardrails such as depth limits or minimum split sizes; otherwise they can keep growing and overfit the training data.
+""")
+
+    col_overview_1, col_overview_2 = st.columns(2)
+    with col_overview_1:
+        fig1, ax1 = plt.subplots(figsize=(7, 4.5))
+        ax1.axis("off")
+        points = {
+            "Root": (0.5, 0.85),
+            "Branch A": (0.28, 0.55),
+            "Branch B": (0.72, 0.55),
+            "Leaf 1": (0.18, 0.22),
+            "Leaf 2": (0.38, 0.22),
+            "Leaf 3": (0.62, 0.22),
+            "Leaf 4": (0.82, 0.22),
+        }
+        edges = [("Root", "Branch A"), ("Root", "Branch B"), ("Branch A", "Leaf 1"), ("Branch A", "Leaf 2"), ("Branch B", "Leaf 3"), ("Branch B", "Leaf 4")]
+        for parent, child in edges:
+            x1, y1 = points[parent]
+            x2, y2 = points[child]
+            ax1.plot([x1, x2], [y1, y2], color="#4C78A8", linewidth=2)
+        for label, (x, y) in points.items():
+            ax1.scatter(x, y, s=1600 if "Leaf" not in label else 1200, color="#F2F2F2", edgecolor="#4C78A8", linewidth=2)
+            ax1.text(x, y, label, ha="center", va="center", fontsize=10, fontweight="bold")
+        ax1.set_title("Decision Tree Anatomy", fontweight="bold")
+        st.pyplot(fig1)
+    with col_overview_2:
+        fig2, ax2 = plt.subplots(figsize=(7, 4.5))
+        values = [1.00, 0.40, 0.60]
+        bars = ax2.bar(["Parent Entropy", "Child Entropy", "Information Gain"], values, color=["#E45756", "#72B7B2", "#54A24B"])
+        ax2.set_ylim(0, 1.1)
+        ax2.set_ylabel("Value")
+        ax2.set_title("Example Split Quality", fontweight="bold")
+        for bar, value in zip(bars, values):
+            ax2.text(bar.get_x() + bar.get_width() / 2, value + 0.03, f"{value:.2f}", ha="center", fontsize=10, fontweight="bold")
+        st.pyplot(fig2)
+
+    st.subheader("(b) Data Prep")
+    prep = dt_analysis.prepare_dt_data(df)
+    split_summary = build_split_summary(prep["X_train"], prep["X_test"], prep["y_train"], prep["y_test"])
+
+    st.markdown(f"""
+**Dataset Link:** [Cleaned dataset]({CLEANED_DATA_URL})  
+**Code Link:** [dt_analysis.py]({CODE_DT_URL})
+""")
+
+    st.markdown("""
+The decision tree model uses labeled data where the label is the depression severity category derived from `depression_score`.  
+I used an **80/20 stratified train/test split**, which keeps the class distribution similar in both subsets.  
+The training and testing sets must be **disjoint** because the model should learn on one set and then be judged on unseen rows from the other set.
+""")
+
+    dt_csv = prep["X"].to_csv(index=False).encode("utf-8")
+    st.download_button(
+        label="Download Prepared DT Input (CSV)",
+        data=dt_csv,
+        file_name="prepared_dt_input.csv",
+        mime="text/csv"
+    )
+
+    split_col1, split_col2 = st.columns([1.1, 1.4])
+    with split_col1:
+        st.markdown("### Split Summary")
+        st.dataframe(split_summary, use_container_width=True)
+    with split_col2:
+        st.markdown("### Train/Test Split Image")
+        st.pyplot(plot_disjoint_split(len(prep["X_train"]), len(prep["X_test"]), "Decision Tree 80/20 Split"))
+
+    st.markdown("### Sample Input Data")
+    st.dataframe(prep["X"].head(10), use_container_width=True)
+
+    prep_col1, prep_col2 = st.columns(2)
+    with prep_col1:
+        st.markdown("### Training Set Sample")
+        st.dataframe(prep["X_train"].head(10), use_container_width=True)
+    with prep_col2:
+        st.markdown("### Testing Set Sample")
+        st.dataframe(prep["X_test"].head(10), use_container_width=True)
+
+    st.markdown("### Training Labels Sample")
+    st.dataframe(prep["y_train"].head(10).rename("depression_severity"), use_container_width=True)
+
+    st.subheader("(c) Code")
+    st.markdown(f"[View Decision Tree Code]({CODE_DT_URL})")
+
+    st.subheader("(d) Results")
+    results = dt_analysis.build_three_different_trees(prep)
+    st.dataframe(dt_analysis.accuracy_table(results), use_container_width=True)
+
+    class_names = sorted(prep["y_test"].unique())
+    best_tree_name, best_tree_out = max(results.items(), key=lambda item: item[1]["accuracy"])
+
+    for tree_name, out in results.items():
+        st.markdown(f"### {tree_name}")
+        st.write(f"Root feature: {out['root_feature']}")
+        st.write(f"Accuracy: {out['accuracy']:.4f}")
+        st.write(f"Features used: {len(out['features_used'])}")
+
+        fig_tree = dt_analysis.plot_decision_tree_model(
+            out["model"],
+            out["features_used"],
+            class_names,
+            title=f"{tree_name} Structure"
+        )
+        fig_cm = dt_analysis.plot_confusion_matrix(
+            out["confusion_matrix"],
+            out["labels"],
+            title=f"{tree_name} Confusion Matrix"
+        )
+
+        result_col1, result_col2 = st.columns(2)
+        with result_col1:
+            st.pyplot(fig_tree)
+        with result_col2:
+            st.pyplot(fig_cm)
+
+    st.markdown(f"""
+Three different trees were intentionally created with different settings and feature availability so that the structures and root nodes would differ.  
+Across the three runs, the roots were **{results['Tree 1']['root_feature']}**, **{results['Tree 2']['root_feature']}**, and **{results['Tree 3']['root_feature']}**, which satisfies the requirement to include different trees with different starting decisions.  
+The best-performing tree in this run was **{best_tree_name}** with accuracy **{best_tree_out['accuracy']:.4f}**, showing which split strategy worked best for this dataset.
+""")
+
+    st.subheader("(e) Conclusions")
+    st.markdown(f"""
+Decision Trees make the classification process easy to interpret because the model visibly shows how predictions are built from one split at a time.  
+For this project, the strongest tree was **{best_tree_name}**, and its root split on **{best_tree_out['root_feature']}**, which suggests that this variable is one of the most informative starting points for separating depression severity levels.  
+This matters for the topic because it highlights which social media behaviors appear most useful for identifying users who may be experiencing worse mental health outcomes.
+""")
 
 with tab_nb:
-    st.info("Naive Bayes — Milestone 3")
+    st.title("Naïve Bayes Classification")
+
+    st.subheader("(a) Overview")
+    st.markdown("""
+Naïve Bayes is a probabilistic classification algorithm based on Bayes' Theorem. It assumes that features are conditionally independent given the class label, which is why it is called "naïve." Even though that assumption is strong, Naïve Bayes often performs well in practice and is widely used because it is fast, simple, and effective.
+
+There are several versions of Naïve Bayes. **Multinomial Naïve Bayes** is often used for count-style or non-negative frequency data. **Gaussian Naïve Bayes** is used when features are continuous and approximately normally distributed. **Bernoulli Naïve Bayes** is used when the features are binary, such as yes/no or true/false indicators. In general, the best version depends on the type of input data being modeled.
+
+Smoothing is required because some features may not appear in a class during training. Without smoothing, that would produce zero probability and could eliminate a class from consideration entirely. Laplace smoothing solves this by assigning a small non-zero probability to unseen events.
+
+In this project, Naïve Bayes is used to classify depression severity groups using social media usage behavior and mental health features.
+""")
+
+    # Two images for overview
+    fig1, ax1 = plt.subplots(figsize=(8, 4))
+    ax1.bar(["Multinomial", "Gaussian", "Bernoulli"], [1, 1, 1])
+    ax1.set_title("Naïve Bayes Variants Used in This Project", fontweight="bold")
+    ax1.set_ylabel("Included")
+    st.pyplot(fig1)
+
+    fig2, ax2 = plt.subplots(figsize=(8, 4))
+    ax2.bar(["No Smoothing", "With Smoothing"], [0.0, 0.1])
+    ax2.set_title("Why Smoothing Is Needed in Naïve Bayes", fontweight="bold")
+    ax2.set_ylabel("Example Probability")
+    st.pyplot(fig2)
+
+    st.markdown("""
+Multinomial NB is best when the inputs behave like counts or non-negative frequencies, Gaussian NB is best for continuous numeric features, Bernoulli NB is best for binary 0/1 features, and Categorical NB is designed for discrete category-coded inputs. The same Bayes rule is used in each case, but the probability model for the features changes. Smoothing matters because an unseen feature-class combination should not force the entire class probability to become zero. In this project, Multinomial NB, Gaussian NB, and Bernoulli NB are run directly, while Categorical NB is included in the comparison discussion because it would fit naturally if these behaviors were binned into categories such as low, medium, and high.
+""")
+
+    extra_nb_col1, extra_nb_col2 = st.columns(2)
+    with extra_nb_col1:
+        fig3, ax3 = plt.subplots(figsize=(7, 4.5))
+        variant_names = ["Multinomial", "Gaussian", "Bernoulli", "Categorical"]
+        preferred_input = [3, 2, 1, 1]
+        bars = ax3.bar(variant_names, preferred_input, color=["#4C78A8", "#72B7B2", "#F58518", "#54A24B"])
+        ax3.set_yticks([1, 2, 3], ["Binary", "Continuous", "Count-like"])
+        ax3.set_title("Which Data Type Fits Each NB Variant?", fontweight="bold")
+        for bar, label in zip(bars, ["Counts", "Continuous", "0/1", "Categories"]):
+            ax3.text(bar.get_x() + bar.get_width() / 2, bar.get_height() + 0.08, label, ha="center", fontsize=9, fontweight="bold")
+        plt.xticks(rotation=15)
+        st.pyplot(fig3)
+    with extra_nb_col2:
+        fig4, ax4 = plt.subplots(figsize=(7, 4.5))
+        bars = ax4.bar(["Unseen feature,\nno smoothing", "Unseen feature,\nwith smoothing"], [0.00, 0.08], color=["#E45756", "#54A24B"])
+        ax4.set_ylim(0, 0.12)
+        ax4.set_ylabel("Example probability")
+        ax4.set_title("Why Smoothing Matters", fontweight="bold")
+        for bar, value in zip(bars, [0.00, 0.08]):
+            ax4.text(bar.get_x() + bar.get_width() / 2, value + 0.004, f"{value:.2f}", ha="center", fontsize=10, fontweight="bold")
+        st.pyplot(fig4)
+
+    st.subheader("(b) Data Prep")
+    prep = nb_analysis.prepare_nb_datasets(df)
+    split_summary = build_split_summary(prep["X_train_raw"], prep["X_test_raw"], prep["y_train"], prep["y_test"])
+
+    st.markdown(f"""
+**Dataset Link:** [Cleaned dataset]({CLEANED_DATA_URL})  
+**Code Link:** [nb_analysis.py]({CODE_NB_URL})
+""")
+
+    st.markdown("""
+Supervised learning requires labeled data. Here, the target label is **depression severity**, created from the depression score and split into four classes.  
+I used an **80/20 stratified train/test split**, so the class mix stays similar in both subsets.  
+The split must be **disjoint** because the testing rows cannot be seen during fitting; otherwise the reported accuracy would be overly optimistic.
+""")
+
+    nb_raw_csv = prep["X_raw"].to_csv(index=False).encode("utf-8")
+    nb_bern_csv = prep["X_train_bern"].to_csv(index=False).encode("utf-8")
+    download_col1, download_col2 = st.columns(2)
+    with download_col1:
+        st.download_button(
+            label="Download Prepared NB Features (CSV)",
+            data=nb_raw_csv,
+            file_name="prepared_nb_features.csv",
+            mime="text/csv"
+        )
+    with download_col2:
+        st.download_button(
+            label="Download Bernoulli NB Binary Sample (CSV)",
+            data=nb_bern_csv,
+            file_name="prepared_nb_bernoulli_train.csv",
+            mime="text/csv"
+        )
+
+    split_col1, split_col2 = st.columns([1.1, 1.4])
+    with split_col1:
+        st.markdown("### Split Summary")
+        st.dataframe(split_summary, use_container_width=True)
+    with split_col2:
+        st.markdown("### Train/Test Split Image")
+        st.pyplot(plot_disjoint_split(len(prep["X_train_raw"]), len(prep["X_test_raw"]), "Naive Bayes 80/20 Split"))
+
+    st.markdown("### Sample Input Data")
+    st.dataframe(prep["X_raw"].head(10), use_container_width=True)
+
+    prep_col1, prep_col2 = st.columns(2)
+    with prep_col1:
+        st.markdown("### Training Set Sample")
+        st.dataframe(prep["X_train_raw"].head(10), use_container_width=True)
+    with prep_col2:
+        st.markdown("### Testing Set Sample")
+        st.dataframe(prep["X_test_raw"].head(10), use_container_width=True)
+
+    st.markdown("### Training Labels Sample")
+    st.dataframe(prep["y_train"].head(10).rename("depression_severity"), use_container_width=True)
+
+    gaussian_preview = pd.DataFrame(prep["X_train_gauss"], columns=prep["feature_names"]).head(10)
+    transformed_col1, transformed_col2 = st.columns(2)
+    with transformed_col1:
+        st.markdown("### Gaussian NB Continuous Data Sample")
+        st.dataframe(gaussian_preview, use_container_width=True)
+    with transformed_col2:
+        st.markdown("### Bernoulli NB Binary Data Sample")
+        st.dataframe(prep["X_train_bern"].head(10), use_container_width=True)
+
+    st.caption("Multinomial NB uses the non-negative version of the training data, Gaussian NB uses the scaled continuous version, and Bernoulli NB uses the binary 0/1 version shown above.")
+
+    st.subheader("(c) Code")
+    st.markdown(f"[View Naïve Bayes Code]({REPO_URL}/blob/main/code/nb_analysis.py)")
+
+    st.subheader("(d) Results")
+    results = nb_analysis.run_all_nb_models(prep)
+    st.dataframe(nb_analysis.accuracy_table(results), use_container_width=True)
+    best_nb_name, best_nb_out = max(results.items(), key=lambda item: item[1]["accuracy"])
+
+    for model_name, out in results.items():
+        st.markdown(f"### {model_name}")
+        st.write(f"Accuracy: {out['accuracy']:.4f}")
+        fig_cm = nb_analysis.plot_confusion_matrix(
+            out["confusion_matrix"],
+            out["labels"],
+            title=f"{model_name} Confusion Matrix"
+        )
+        st.pyplot(fig_cm)
+
+    st.markdown("""
+The confusion matrices and accuracy values show how well each Naïve Bayes variant classified the depression severity groups.  
+Gaussian NB is useful when continuous variables are preserved, Bernoulli NB works well for binary thresholds, and Multinomial NB is suitable for non-negative frequency-style data.  
+Comparing all three helps show how the data format affects model performance.
+""")
+
+    st.subheader("(e) Conclusions")
+    st.markdown("""
+Naïve Bayes provides a simple and efficient way to classify mental health risk groups from behavioral data.  
+The results suggest that social media usage features contain enough signal to support predictive modeling, although performance depends on how the data is represented.  
+This makes Naïve Bayes a useful baseline for comparing against more complex supervised learning methods.
+""")
+
+    st.markdown(f"""
+For this project, **{best_nb_name}** performed best, which suggests that the chosen feature representation matters as much as the algorithm family itself. The results also show that social media behavior contains useful predictive signal, but multiclass depression severity remains a difficult problem for the strong independence assumptions used by Naive Bayes.
+""")
 
 with tab_svm:
     st.info("SVM — Milestone 3")
 
 with tab_reg:
-    st.info("Regression — Milestone 3")
+    st.title("Regression")
+
+    st.subheader("Concept Questions")
+    st.markdown("""
+**(a) Define and explain linear regression.**  
+Linear regression models the relationship between input variables and a **continuous** output using a straight-line equation. It is used when the goal is to predict a number such as a score, time, or price.
+
+**(b) Define and explain logistic regression.**  
+Logistic regression is a classification algorithm that predicts the probability that a record belongs to a class, usually one of two classes. It is commonly used for yes/no style outcomes such as low risk versus high risk.
+
+**(c) How are they similar and how are they different?**  
+Both methods begin with a linear combination of the input features. The difference is that linear regression predicts a continuous value, while logistic regression converts the result into a probability and then a class label.
+
+**(d) Does logistic regression use the sigmoid function? Explain.**  
+Yes. Logistic regression uses the sigmoid function to map the raw linear score into a probability between `0` and `1`, which makes the output suitable for binary classification.
+
+**(e) Explain how maximum likelihood is connected to logistic regression.**  
+Logistic regression estimates its coefficients by maximizing the likelihood of the observed class labels. In other words, it chooses the parameter values that make the training outcomes most probable under the model.
+""")
+
+    st.subheader("Data Prep")
+    prep = regression_analysis.prepare_regression_data(df)
+    split_summary = build_split_summary(prep["X_train_raw"], prep["X_test_raw"], prep["y_train"], prep["y_test"])
+
+    st.markdown(f"""
+**Dataset Link:** [Cleaned dataset]({CLEANED_DATA_URL})  
+**Code Link:** [regression_analysis.py]({CODE_REG_URL})
+""")
+
+    st.markdown("""
+For logistic regression, the target must be categorical.  
+Here, a binary label is created from depression score: lower risk vs higher risk.  
+I used an **80/20 stratified train/test split**, and these two subsets remain disjoint so the evaluation reflects generalization rather than memorization.
+""")
+
+    reg_csv = prep["X"].to_csv(index=False).encode("utf-8")
+    st.download_button(
+        label="Download Prepared Regression Input (CSV)",
+        data=reg_csv,
+        file_name="prepared_regression_input.csv",
+        mime="text/csv"
+    )
+
+    split_col1, split_col2 = st.columns([1.1, 1.4])
+    with split_col1:
+        st.markdown("### Split Summary")
+        st.dataframe(split_summary, use_container_width=True)
+    with split_col2:
+        st.markdown("### Train/Test Split Image")
+        st.pyplot(plot_disjoint_split(len(prep["X_train_raw"]), len(prep["X_test_raw"]), "Regression 80/20 Split"))
+
+    st.markdown("### Sample Input Data")
+    st.dataframe(prep["X"].head(10), use_container_width=True)
+
+    prep_col1, prep_col2 = st.columns(2)
+    with prep_col1:
+        st.markdown("### Training Set Sample")
+        st.dataframe(prep["X_train_raw"].head(10), use_container_width=True)
+    with prep_col2:
+        st.markdown("### Testing Set Sample")
+        st.dataframe(prep["X_test_raw"].head(10), use_container_width=True)
+
+    st.markdown("### Training Labels Sample")
+    st.dataframe(prep["y_train"].head(10).rename("high_risk_label"), use_container_width=True)
+
+    log_preview = pd.DataFrame(prep["X_train_log"], columns=prep["feature_names"]).head(10)
+    transform_col1, transform_col2 = st.columns(2)
+    with transform_col1:
+        st.markdown("### Logistic Regression Scaled Data Sample")
+        st.dataframe(log_preview, use_container_width=True)
+    with transform_col2:
+        st.markdown("### Multinomial NB Non-Negative Data Sample")
+        st.dataframe(prep["X_train_nb"].head(10), use_container_width=True)
+
+    st.subheader("Model Results: Logistic Regression vs Multinomial NB")
+    results = regression_analysis.run_logistic_and_nb(prep)
+    st.dataframe(regression_analysis.accuracy_table(results), use_container_width=True)
+    best_reg_name, best_reg_out = max(results.items(), key=lambda item: item[1]["accuracy"])
+    worst_reg_name, worst_reg_out = min(results.items(), key=lambda item: item[1]["accuracy"])
+
+    for model_name, out in results.items():
+        st.markdown(f"### {model_name}")
+        st.write(f"Accuracy: {out['accuracy']:.4f}")
+        fig_cm = regression_analysis.plot_confusion_matrix(
+            out["confusion_matrix"],
+            labels=("Low Risk", "High Risk"),
+            title=f"{model_name} Confusion Matrix"
+        )
+        st.pyplot(fig_cm)
+
+    st.markdown("""
+Logistic regression and Multinomial Naïve Bayes were both applied to the same binary mental health prediction task.  
+The confusion matrices and accuracy scores show how well each model separates lower-risk and higher-risk users.  
+Comparing these results helps determine whether a linear probability-based model or a probabilistic count-style classifier works better for this project.
+""")
+
+    st.markdown(f"""
+Logistic regression and Multinomial Naive Bayes were both applied to the same binary mental health prediction task.  
+The stronger model in this run was **{best_reg_name}** with accuracy **{best_reg_out['accuracy']:.4f}**, while **{worst_reg_name}** reached **{worst_reg_out['accuracy']:.4f}**.  
+This comparison shows which model works better for the project when the goal is to separate lower-risk and higher-risk users on the same labeled dataset.
+""")
 
 with tab_conc:
-    st.info("Final Conclusions — Final Milestone")
+    st.title("Cross-Model Summary")
+
+    if df is not None:
+        nb_prep = nb_analysis.prepare_nb_datasets(df)
+        nb_results = nb_analysis.run_all_nb_models(nb_prep)
+        dt_prep = dt_analysis.prepare_dt_data(df)
+        dt_results = dt_analysis.build_three_different_trees(dt_prep)
+        reg_prep = regression_analysis.prepare_regression_data(df)
+        reg_results = regression_analysis.run_logistic_and_nb(reg_prep)
+
+        best_nb_name, best_nb_out = max(nb_results.items(), key=lambda item: item[1]["accuracy"])
+        best_dt_name, best_dt_out = max(dt_results.items(), key=lambda item: item[1]["accuracy"])
+        best_reg_name, best_reg_out = max(reg_results.items(), key=lambda item: item[1]["accuracy"])
+
+        summary_df = pd.DataFrame(
+            [
+                {"Section": "Naive Bayes", "Best Model": best_nb_name, "Accuracy": round(best_nb_out["accuracy"], 4)},
+                {"Section": "Decision Tree", "Best Model": best_dt_name, "Accuracy": round(best_dt_out["accuracy"], 4)},
+                {"Section": "Regression", "Best Model": best_reg_name, "Accuracy": round(best_reg_out["accuracy"], 4)},
+            ]
+        ).sort_values("Accuracy", ascending=False).reset_index(drop=True)
+
+        st.dataframe(summary_df, use_container_width=True)
+
+        st.markdown(f"""
+Across the Module 3 supervised learning work, the strongest Decision Tree was **{best_dt_name}** at **{best_dt_out['accuracy']:.4f}**, the strongest Naive Bayes model was **{best_nb_name}** at **{best_nb_out['accuracy']:.4f}**, and the best regression-side model was **{best_reg_name}** at **{best_reg_out['accuracy']:.4f}**.  
+This suggests that the project data contains useful predictive signal, but the difficulty of the task changes depending on whether the target is a four-class severity label or a simpler binary risk label.  
+Overall, the Decision Tree and Logistic Regression results show that the relationship between social media behavior and mental health can be modeled, while the Naive Bayes section helps explain how representation choices affect simpler probabilistic models.
+""")
+    else:
+        st.info("Load the cleaned dataset to view the final cross-model summary.")
 
 # =========================================================
 # Footer
