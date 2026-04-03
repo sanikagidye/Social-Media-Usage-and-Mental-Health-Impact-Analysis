@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import os
+import subprocess
 import warnings
 
 warnings.filterwarnings("ignore")
@@ -22,14 +23,31 @@ import code.regression_analysis as regression_analysis
 
 REPO_URL = "https://github.com/sanikagidye/Social-Media-Usage-and-Mental-Health-Impact-Analysis"
 
-CLEANED_DATA_URL = f"{REPO_URL}/blob/main/data/cleaned/merged_social_mental_health.csv"
-CODE_PCA_URL = f"{REPO_URL}/blob/main/code/pca_analysis.py"
-CODE_CLUSTER_URL = f"{REPO_URL}/blob/main/code/clustering_analysis.py"
-CODE_ARM_URL = f"{REPO_URL}/blob/main/code/arm_analysis.py"
-APP_URL = f"{REPO_URL}/blob/main/app.py"
-CODE_NB_URL = f"{REPO_URL}/blob/main/code/nb_analysis.py"
-CODE_DT_URL = f"{REPO_URL}/blob/main/code/dt_analysis.py"
-CODE_REG_URL = f"{REPO_URL}/blob/main/code/regression_analysis.py"
+
+def get_repo_branch(default="main"):
+    env_branch = os.getenv("GITHUB_BRANCH") or os.getenv("BRANCH_NAME")
+    if env_branch:
+        return env_branch
+
+    try:
+        branch = subprocess.check_output(
+            ["git", "branch", "--show-current"],
+            text=True
+        ).strip()
+        return branch or default
+    except Exception:
+        return default
+
+
+REPO_BRANCH = get_repo_branch()
+CLEANED_DATA_URL = f"{REPO_URL}/blob/{REPO_BRANCH}/data/cleaned/merged_social_mental_health.csv"
+CODE_PCA_URL = f"{REPO_URL}/blob/{REPO_BRANCH}/code/pca_analysis.py"
+CODE_CLUSTER_URL = f"{REPO_URL}/blob/{REPO_BRANCH}/code/clustering_analysis.py"
+CODE_ARM_URL = f"{REPO_URL}/blob/{REPO_BRANCH}/code/arm_analysis.py"
+APP_URL = f"{REPO_URL}/blob/{REPO_BRANCH}/app.py"
+CODE_NB_URL = f"{REPO_URL}/blob/{REPO_BRANCH}/code/nb_analysis.py"
+CODE_DT_URL = f"{REPO_URL}/blob/{REPO_BRANCH}/code/dt_analysis.py"
+CODE_REG_URL = f"{REPO_URL}/blob/{REPO_BRANCH}/code/regression_analysis.py"
 
 # =========================================================
 # Page Config
@@ -1233,7 +1251,7 @@ The split must be **disjoint** because the testing rows cannot be seen during fi
     st.caption("Multinomial NB uses the non-negative version of the training data, Gaussian NB uses the scaled continuous version, and Bernoulli NB uses the binary 0/1 version shown above.")
 
     st.subheader("(c) Code")
-    st.markdown(f"[View Naïve Bayes Code]({REPO_URL}/blob/main/code/nb_analysis.py)")
+    st.markdown(f"[View Naïve Bayes Code]({CODE_NB_URL})")
 
     st.subheader("(d) Results")
     results = nb_analysis.run_all_nb_models(prep)
