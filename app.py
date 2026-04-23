@@ -1422,7 +1422,7 @@ with tab_ensemble:
         st.markdown("""
 Ensemble learning improves prediction by combining multiple models instead of trusting just one. The idea is simple: if several different models look at the same problem and each catches part of the pattern, the combined result can be more stable and reliable than any one model working alone.
 
-To go beyond the minimum requirement, this section compares several ensemble styles: **Random Forest**, **Extra Trees**, **AdaBoost**, and a **Voting Ensemble**. Together they represent common ensemble ideas such as bagging, randomized trees, boosting, and voting. All of them are applied to the same mental health risk prediction task used in the SVM section so the comparison stays consistent.
+This section compares several ensemble styles: **Random Forest**, **Extra Trees**, **AdaBoost**, and a **Voting Ensemble**. Together they represent common ensemble ideas such as bagging, randomized trees, boosting, and voting. All of them are applied to the same mental health risk prediction task used in the SVM section so the comparison stays consistent.
 """)
 
         st.pyplot(ensemble_analysis.plot_ensemble_concept())
