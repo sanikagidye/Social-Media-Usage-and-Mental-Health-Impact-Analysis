@@ -17,6 +17,8 @@ from code.regression_analysis import *
 import code.nb_analysis as nb_analysis
 import code.dt_analysis as dt_analysis
 import code.regression_analysis as regression_analysis
+import code.svm_analysis as svm_analysis
+import code.ensemble_analysis as ensemble_analysis
 # =========================================================
 # GitHub Links
 # =========================================================
@@ -48,6 +50,8 @@ APP_URL = f"{REPO_URL}/blob/{REPO_BRANCH}/app.py"
 CODE_NB_URL = f"{REPO_URL}/blob/{REPO_BRANCH}/code/nb_analysis.py"
 CODE_DT_URL = f"{REPO_URL}/blob/{REPO_BRANCH}/code/dt_analysis.py"
 CODE_REG_URL = f"{REPO_URL}/blob/{REPO_BRANCH}/code/regression_analysis.py"
+CODE_SVM_URL = f"{REPO_URL}/blob/{REPO_BRANCH}/code/svm_analysis.py"
+CODE_ENSEMBLE_URL = f"{REPO_URL}/blob/{REPO_BRANCH}/code/ensemble_analysis.py"
 
 # =========================================================
 # Page Config
@@ -71,6 +75,20 @@ def load_data():
     return None
 
 df = load_data()
+
+
+@st.cache_data
+def get_svm_analysis(dataframe):
+    prep = svm_analysis.prepare_svm_data(dataframe)
+    results = svm_analysis.run_svm_experiments(prep)
+    return prep, results
+
+
+@st.cache_data
+def get_ensemble_analysis(dataframe):
+    prep = ensemble_analysis.prepare_ensemble_data(dataframe)
+    results = ensemble_analysis.run_ensemble_models(prep)
+    return prep, results
 
 
 def build_split_summary(X_train, X_test, y_train, y_test):
@@ -124,7 +142,7 @@ def dataframe_snapshot_figure(df_snapshot, title):
 # Tabs
 # =========================================================
 
-tab_intro, tab_prep, tab_pca, tab_clustering, tab_arm, tab_dt, tab_nb, tab_svm, tab_reg, tab_conc = st.tabs([
+tab_intro, tab_prep, tab_pca, tab_clustering, tab_arm, tab_dt, tab_nb, tab_svm, tab_ensemble, tab_reg, tab_conc = st.tabs([
     "Introduction",
     "Data Prep/EDA",
     "PCA",
@@ -133,6 +151,7 @@ tab_intro, tab_prep, tab_pca, tab_clustering, tab_arm, tab_dt, tab_nb, tab_svm, 
     "DT",
     "NB",
     "SVM",
+    "Ensemble",
     "Regression",
     "Conclusions"
 ])
@@ -155,54 +174,17 @@ with tab_intro:
         st.image(img2, use_container_width=True)
 
     st.markdown("""
-    ## Understanding the Digital Age's Impact on Mental Wellbeing
-    
-    Background and Significance:
-    
-    In the past decade, social media has transformed from a novel communication tool into an integral 
-    part of daily life for billions of people worldwide. As of 2024, over 4.9 billion people actively 
-    use social media platforms, spending an average of 2 hours and 31 minutes daily scrolling through 
-    feeds, posting updates, and consuming content. This dramatic shift in how humans interact and 
-    consume information has sparked critical questions about the psychological impact of constant 
-    digital connectivity. While social media platforms were designed to bring people closer together, 
-    mounting evidence suggests they may be contributing to a global mental health crisis, particularly 
-    among younger generations. The rise in depression, anxiety, and other mental health disorders has 
-    coincided with the explosive growth of social media, raising urgent questions that demand rigorous, 
-    data-driven investigation.
-    
-    The Mental Health Crisis:
-    
-    Mental health disorders have reached epidemic proportions worldwide, with the World Health Organization 
-    reporting that depression and anxiety cost the global economy approximately $1 trillion annually in 
-    lost productivity. In the United States alone, the prevalence of depression among adults increased 
-    from 8.4% in 2018 to over 12.3% in 2024. Even more alarming is the trend among adolescents and young 
-    adults, where rates of major depressive episodes have surged by over 60% in the past decade. Research 
-    institutions including Johns Hopkins, Stanford, and the National Institutes of Health have identified 
-    multiple potential contributing factors, but social media emerges repeatedly as a significant variable. 
-    The American Psychological Association has documented correlations between excessive social media use 
-    and increased rates of anxiety, depression, sleep disruption, body image issues, and diminished self-esteem.
-    
-    Platform Features and Psychological Mechanisms:
-    
-    Modern social media platforms employ sophisticated algorithms designed to maximize user engagement 
-    through variable reward schedules, infinite scrolling, and personalized content delivery. These features, 
-    while effective at retaining users, may trigger psychological responses similar to those seen in behavioral 
-    addictions. The constant availability of social comparison opportunities creates an environment where users 
-    perpetually measure their lives against curated, idealized representations of others' experiences. Features 
-    such as follower counts, like counters, and view metrics create quantifiable measures of social validation 
-    that can become sources of anxiety and obsession. Platforms like Instagram and TikTok, which prioritize 
-    visual content, have been particularly associated with body image concerns and appearance-based social 
-    comparison. The phenomenon of "FOMO" (fear of missing out) has been documented extensively, describing 
-    the anxiety individuals experience when they perceive others are having more rewarding experiences.
+    ## Understanding the Topic in a Human Way
 
-    Why This Topic Matters:
+    Social media is woven into everyday life so completely that many people barely notice how often they reach for it. It is where friendships continue after school, where trends spread, where people celebrate milestones, and where many users look for distraction at the end of a stressful day. Because these platforms sit so close to daily routines, they also have the power to shape mood, confidence, sleep habits, and the way people see themselves.
 
-    This topic matters because social media is no longer a small part of life for most people; it shapes how people 
-    relax, communicate, study, work, and judge themselves. That means the effects of unhealthy use patterns can ripple 
-    outward into sleep, school performance, relationships, confidence, and everyday wellbeing. Understanding those 
-    patterns can help families, schools, health professionals, and platform designers make better choices that support 
-    healthier digital habits. It can also help users recognize warning signs earlier and build routines that protect 
-    mental wellbeing without requiring people to disconnect completely from online life.
+    What makes this topic especially important is that social media can feel helpful and harmful at the same time. A person might use it to stay connected, laugh, learn, or feel less alone, yet the very same spaces can also create pressure, comparison, overstimulation, and emotional fatigue. That tension makes the subject worth studying carefully, because the answer is not simply that social media is good or bad. The more honest question is when it supports wellbeing and when it starts to wear people down.
+
+    This project looks at that everyday reality through the lens of mental health. Instead of focusing only on dramatic stories, it explores ordinary behaviors such as how long people stay online, how late they scroll, how often they compare themselves to others, and how supported or isolated they feel. Those patterns matter because small habits repeated every day can quietly shape how rested, anxious, satisfied, or overwhelmed someone feels over time.
+
+    The goal is not to shame people for using technology or to suggest that everyone should disconnect. Social media is now part of how people communicate, build identity, follow news, and participate in culture. A stronger goal is to understand which habits seem healthier, which habits appear more risky, and how people can create a better balance between digital connection and personal wellbeing.
+
+    In that way, this website tells a practical story. It brings together visuals, patterns, and predictive models to show how online behavior connects with emotional health in the real world. By the end, the reader should come away with a clearer sense that mental wellbeing online is not just about screen time alone. It is also about timing, comparison, sleep, social support, and the way repeated digital experiences can add up across a person’s life.
     """)
 
     st.divider()
@@ -1286,7 +1268,253 @@ For this project, **{best_nb_name}** performed best, which suggests that the cho
 """)
 
 with tab_svm:
-    st.info("SVM — Milestone 3")
+    st.title("Support Vector Machines (SVMs)")
+
+    if df is None:
+        st.info("Load the cleaned dataset to view the SVM analysis.")
+    else:
+        st.subheader("(a) Overview")
+        st.markdown("""
+Support Vector Machines are supervised learning models that learn from **labeled examples**. For this project, the labels represent whether a person falls into a **lower-risk** or **higher-risk** mental health group based on the depression score. The job of the SVM is to look at the training examples and draw the strongest possible boundary between those two groups.
+
+An SVM begins as a **linear separator**, which means it tries to find a straight boundary that splits one class from the other. What makes SVMs special is that they do not just search for any boundary. They search for the boundary with the **largest margin**, meaning the widest possible buffer between the two groups. The training points closest to that buffer are called **support vectors**, and they are the records that most strongly shape the final decision boundary.
+
+Real-world behavioral data is often not cleanly split by a straight line. That is where the **kernel trick** helps. A kernel lets the SVM behave as if the data has been moved into a richer feature space, where a straight split may become possible, without explicitly calculating every expanded feature. This is powerful because it gives the model more flexibility while keeping the calculations manageable.
+
+The **dot product** is critical because kernels use it to measure similarity between pairs of points. If two points point in a similar direction in feature space, their dot product is larger, and the SVM treats them as more alike. That means the kernel can compare points in a transformed space using only similarity calculations, which is why the kernel trick works so efficiently.
+""")
+
+        st.latex(r"K(\mathbf{x}, \mathbf{z}) = (\mathbf{x} \cdot \mathbf{z} + r)^d \quad \text{Polynomial kernel}")
+        st.latex(r"K(\mathbf{x}, \mathbf{z}) = \exp(-\gamma \lVert \mathbf{x} - \mathbf{z} \rVert^2) \quad \text{RBF kernel}")
+
+        overview_col1, overview_col2 = st.columns(2)
+        with overview_col1:
+            st.pyplot(svm_analysis.plot_svm_margin_concept())
+        with overview_col2:
+            st.pyplot(svm_analysis.plot_kernel_trick_concept())
+
+        st.markdown("""
+The first image shows the classic SVM idea: a separating boundary with margins and support vectors. The second image shows why kernels matter: a shape that is hard to separate in the original view can become easier to separate after the data is lifted into a higher-dimensional space.
+""")
+
+        st.markdown("""
+For the required 2D point-casting example, consider the polynomial kernel with **r = 1** and **d = 2**:
+""")
+        st.latex(r"K(\mathbf{x}, \mathbf{z}) = (\mathbf{x}\cdot\mathbf{z} + 1)^2")
+        st.latex(r"\phi(x_1, x_2) = [x_1^2,\ \sqrt{2}x_1x_2,\ x_2^2,\ \sqrt{2}x_1,\ \sqrt{2}x_2,\ 1]")
+        st.markdown("""
+That means a 2D point is effectively cast into **6 dimensions**. For the example point **(2, 3)**, the expanded representation is shown below.
+""")
+        st.dataframe(svm_analysis.polynomial_feature_cast_example(2, 3), use_container_width=True)
+
+        st.subheader("(b) Data Prep")
+        prep, svm_results = get_svm_analysis(df)
+        split_summary = build_split_summary(prep["X_train_raw"], prep["X_test_raw"], prep["y_train"], prep["y_test"])
+
+        st.markdown(f"""
+**Dataset Link:** [Cleaned dataset]({CLEANED_DATA_URL})  
+**Code Link:** [svm_analysis.py]({CODE_SVM_URL})
+""")
+
+        st.markdown("""
+Supervised models require **labeled data**, because the algorithm must know the correct answer during training. In this SVM section, each record is labeled as **Lower Risk** or **Higher Risk**. Without those labels, the model would have no way to learn what kind of pattern it should separate.
+
+SVMs also require **numeric input features**. That is because the model depends on distances, margins, and dot products, and those ideas only make sense when the inputs are numbers. For that reason, this section uses only numeric behavioral and wellbeing features such as usage hours, anxiety score, sleep quality score, notifications per day, and engagement ratio.
+
+The dataset was split into a **training set** and a **testing set** using an 80/20 stratified split. They must be **disjoint**, meaning no row can appear in both sets. The training set is used to build the model, while the testing set is held back until the end so the reported results reflect how the model performs on unseen data rather than data it already memorized.
+""")
+
+        svm_csv = prep["X"].assign(
+            high_risk_label=prep["y"].map({0: "Lower Risk", 1: "Higher Risk"})
+        ).to_csv(index=False).encode("utf-8")
+        st.download_button(
+            label="Download Prepared SVM Dataset (CSV)",
+            data=svm_csv,
+            file_name="prepared_svm_dataset.csv",
+            mime="text/csv"
+        )
+
+        prep_col1, prep_col2 = st.columns([1.15, 1.35])
+        with prep_col1:
+            st.markdown("### Split Summary")
+            st.dataframe(split_summary, use_container_width=True)
+        with prep_col2:
+            st.markdown("### Train/Test Split Image")
+            st.pyplot(plot_disjoint_split(len(prep["X_train_raw"]), len(prep["X_test_raw"]), "SVM 80/20 Split"))
+
+        sample_with_label = prep["X"].copy()
+        sample_with_label["high_risk_label"] = prep["y"].map({0: "Lower Risk", 1: "Higher Risk"})
+        sample_col1, sample_col2 = st.columns(2)
+        with sample_col1:
+            st.markdown("### Sample of the Planned SVM Data")
+            st.dataframe(sample_with_label.head(10), use_container_width=True)
+        with sample_col2:
+            st.markdown("### Sample Data Image")
+            st.pyplot(dataframe_snapshot_figure(sample_with_label.head(8), "Labeled Numeric SVM Input Sample"))
+
+        train_col1, train_col2 = st.columns(2)
+        with train_col1:
+            st.markdown("### Training Set Sample")
+            st.dataframe(prep["X_train_raw"].head(10), use_container_width=True)
+        with train_col2:
+            st.markdown("### Testing Set Sample")
+            st.dataframe(prep["X_test_raw"].head(10), use_container_width=True)
+
+        st.markdown("### Training Labels Sample")
+        st.dataframe(prep["y_train"].head(10).map({0: "Lower Risk", 1: "Higher Risk"}).rename("high_risk_label"), use_container_width=True)
+
+        st.subheader("(c) Code")
+        st.markdown(f"[View SVM Code]({CODE_SVM_URL})")
+
+        st.subheader("(d) Results")
+        best_svm_name, best_svm_out = max(
+            ((kernel, details["best"]) for kernel, details in svm_results.items()),
+            key=lambda item: item[1]["accuracy"]
+        )
+
+        st.markdown("""
+Three kernels were tested: **linear**, **polynomial**, and **rbf**. For each kernel, multiple cost values were tried so the model could be compared fairly rather than relying on a single setting. The table below shows every kernel-cost run, and the smaller table highlights the selected best cost for each kernel.
+""")
+
+        result_table_col1, result_table_col2 = st.columns([1.45, 1.0])
+        with result_table_col1:
+            st.dataframe(svm_analysis.svm_accuracy_table(svm_results), use_container_width=True)
+        with result_table_col2:
+            st.dataframe(svm_analysis.best_svm_table(svm_results), use_container_width=True)
+
+        st.pyplot(svm_analysis.plot_accuracy_by_cost(svm_results))
+
+        for kernel in ["linear", "poly", "rbf"]:
+            best = svm_results[kernel]["best"]
+            st.markdown(f"### {kernel.upper()} Kernel with C = {best['C']}")
+            st.write(f"Accuracy: {best['accuracy']:.4f}")
+            st.write(f"Support vectors used: {best['support_vectors']}")
+
+            kernel_col1, kernel_col2 = st.columns(2)
+            with kernel_col1:
+                st.pyplot(
+                    svm_analysis.plot_confusion_matrix(
+                        best["confusion_matrix"],
+                        title=f"{kernel.upper()} Kernel Confusion Matrix"
+                    )
+                )
+            with kernel_col2:
+                st.pyplot(svm_analysis.plot_pca_decision_regions(prep, kernel, best["C"]))
+
+        st.markdown(f"""
+Across the tested kernels, the strongest result came from the **{best_svm_name.upper()}** kernel with **C = {best_svm_out['C']}**, reaching an accuracy of **{best_svm_out['accuracy']:.4f}**. The linear kernel gives a straight split, the polynomial kernel gives a curved but still structured split, and the RBF kernel allows the most flexible boundary. In this dataset, the stronger performance of the RBF kernel suggests that the relationship between social media behavior and mental health risk is probably **not purely straight-line** in nature.
+""")
+
+        st.subheader("(e) Conclusions")
+        st.markdown(f"""
+This SVM analysis shows that social media behavior can be used to separate lower-risk and higher-risk mental health patterns, but the shape of that separation matters. A simple straight boundary was not the best fit here. The more flexible **{best_svm_name.upper()}** kernel performed best, which suggests that the connection between digital habits and wellbeing is more complex than a single straight rule.
+
+In practical terms, the SVM results reinforce the idea that risk does not come from only one behavior. It comes from combinations of behaviors such as heavier use, more late-night activity, stronger comparison habits, and other signals that interact with one another. That is why a flexible boundary can outperform a rigid one on this topic.
+""")
+
+with tab_ensemble:
+    st.title("Ensemble Learning")
+
+    if df is None:
+        st.info("Load the cleaned dataset to view the ensemble learning analysis.")
+    else:
+        st.subheader("(a) Overview")
+        st.markdown("""
+Ensemble learning improves prediction by combining multiple models instead of trusting just one. The idea is simple: if several different models look at the same problem and each catches part of the pattern, the combined result can be more stable and reliable than any one model working alone.
+
+To go beyond the minimum requirement, this section compares several ensemble styles: **Random Forest**, **Extra Trees**, **AdaBoost**, and a **Voting Ensemble**. Together they represent common ensemble ideas such as bagging, randomized trees, boosting, and voting. All of them are applied to the same mental health risk prediction task used in the SVM section so the comparison stays consistent.
+""")
+
+        st.pyplot(ensemble_analysis.plot_ensemble_concept())
+
+        st.subheader("(b) Data Prep")
+        ensemble_prep, ensemble_results = get_ensemble_analysis(df)
+        split_summary = build_split_summary(
+            ensemble_prep["X_train_raw"],
+            ensemble_prep["X_test_raw"],
+            ensemble_prep["y_train"],
+            ensemble_prep["y_test"]
+        )
+
+        st.markdown(f"""
+**Dataset Link:** [Cleaned dataset]({CLEANED_DATA_URL})  
+**Code Link:** [ensemble_analysis.py]({CODE_ENSEMBLE_URL})
+""")
+
+        st.markdown("""
+The ensemble models use the same labeled numeric dataset as the SVM section. Each row contains behavioral and wellbeing measurements, and each row is labeled as **Lower Risk** or **Higher Risk**. Keeping the same prediction target makes it easier to compare what a single strong classifier does versus what a group of models can do together.
+
+An 80/20 stratified train/test split was used here as well, and the two subsets remain disjoint for the same reason: the test rows must stay unseen until evaluation time. If the same rows showed up during both training and testing, the reported performance would look better than it really is.
+""")
+
+        ensemble_csv = ensemble_prep["X"].assign(
+            high_risk_label=ensemble_prep["y"].map({0: "Lower Risk", 1: "Higher Risk"})
+        ).to_csv(index=False).encode("utf-8")
+        st.download_button(
+            label="Download Prepared Ensemble Dataset (CSV)",
+            data=ensemble_csv,
+            file_name="prepared_ensemble_dataset.csv",
+            mime="text/csv"
+        )
+
+        ensemble_col1, ensemble_col2 = st.columns([1.15, 1.35])
+        with ensemble_col1:
+            st.markdown("### Split Summary")
+            st.dataframe(split_summary, use_container_width=True)
+        with ensemble_col2:
+            st.markdown("### Train/Test Split Image")
+            st.pyplot(plot_disjoint_split(len(ensemble_prep["X_train_raw"]), len(ensemble_prep["X_test_raw"]), "Ensemble 80/20 Split"))
+
+        st.markdown("### Sample Input Data")
+        st.dataframe(
+            ensemble_prep["X"].assign(
+                high_risk_label=ensemble_prep["y"].map({0: "Lower Risk", 1: "Higher Risk"})
+            ).head(10),
+            use_container_width=True
+        )
+
+        st.subheader("(c) Code")
+        st.markdown(f"[View Ensemble Code]({CODE_ENSEMBLE_URL})")
+
+        st.subheader("(d) Results")
+        best_ensemble_name, best_ensemble_out = max(ensemble_results.items(), key=lambda item: item[1]["accuracy"])
+        best_tree_name, best_tree_out = ensemble_analysis.best_tree_ensemble(ensemble_results)
+
+        results_col1, results_col2 = st.columns([1.0, 1.2])
+        with results_col1:
+            st.dataframe(ensemble_analysis.ensemble_accuracy_table(ensemble_results), use_container_width=True)
+        with results_col2:
+            st.pyplot(ensemble_analysis.plot_accuracy_bar(ensemble_results))
+
+        st.markdown(f"""
+The strongest overall ensemble in this run was **{best_ensemble_name}**, with an accuracy of **{best_ensemble_out['accuracy']:.4f}**. That means combining models, or using many trees together, can provide a dependable way to recognize mental health risk patterns from this dataset.
+""")
+
+        for model_name, out in ensemble_results.items():
+            st.markdown(f"### {model_name}")
+            st.write(f"Accuracy: {out['accuracy']:.4f}")
+            st.pyplot(
+                ensemble_analysis.plot_confusion_matrix(
+                    out["confusion_matrix"],
+                    title=f"{model_name} Confusion Matrix"
+                )
+            )
+
+        st.markdown(f"### Feature Importance from {best_tree_name}")
+        st.pyplot(
+            ensemble_analysis.plot_feature_importance(
+                best_tree_out["model"],
+                ensemble_prep["feature_names"],
+                title=f"{best_tree_name} Top Feature Importances"
+            )
+        )
+
+        st.subheader("(e) Conclusions")
+        st.markdown(f"""
+The ensemble results show that combining many decisions can be useful for this topic because social media and mental health do not depend on one single behavior. They depend on patterns that build across many habits at once. That is exactly the kind of situation where ensemble methods can help.
+
+In this project, **{best_ensemble_name}** performed best, while **{best_tree_name}** also helped reveal which features mattered most. Together, these results suggest that mental health risk in the dataset is driven by a mix of usage intensity, emotional strain, sleep-related behaviors, and social comparison rather than one isolated variable.
+""")
 
 with tab_reg:
     st.title("Regression")
@@ -1392,34 +1620,47 @@ This comparison shows which model works better for the project when the goal is 
 """)
 
 with tab_conc:
-    st.title("Cross-Model Summary")
+    st.title("Conclusions")
 
     if df is not None:
         nb_prep = nb_analysis.prepare_nb_datasets(df)
         nb_results = nb_analysis.run_all_nb_models(nb_prep)
         dt_prep = dt_analysis.prepare_dt_data(df)
         dt_results = dt_analysis.build_three_different_trees(dt_prep)
+        _, svm_results = get_svm_analysis(df)
+        _, ensemble_results = get_ensemble_analysis(df)
         reg_prep = regression_analysis.prepare_regression_data(df)
         reg_results = regression_analysis.run_logistic_and_nb(reg_prep)
 
         best_nb_name, best_nb_out = max(nb_results.items(), key=lambda item: item[1]["accuracy"])
         best_dt_name, best_dt_out = max(dt_results.items(), key=lambda item: item[1]["accuracy"])
+        best_svm_name, _ = max(
+            ((kernel, details["best"]) for kernel, details in svm_results.items()),
+            key=lambda item: item[1]["accuracy"]
+        )
+        best_ensemble_name, _ = max(ensemble_results.items(), key=lambda item: item[1]["accuracy"])
         best_reg_name, best_reg_out = max(reg_results.items(), key=lambda item: item[1]["accuracy"])
 
-        summary_df = pd.DataFrame(
-            [
-                {"Section": "Naive Bayes", "Best Model": best_nb_name, "Accuracy": round(best_nb_out["accuracy"], 4)},
-                {"Section": "Decision Tree", "Best Model": best_dt_name, "Accuracy": round(best_dt_out["accuracy"], 4)},
-                {"Section": "Regression", "Best Model": best_reg_name, "Accuracy": round(best_reg_out["accuracy"], 4)},
-            ]
-        ).sort_values("Accuracy", ascending=False).reset_index(drop=True)
-
-        st.dataframe(summary_df, use_container_width=True)
+        image_col1, image_col2 = st.columns(2)
+        with image_col1:
+            summary_img = "viz/11_summary_dashboard.png"
+            if os.path.exists(summary_img):
+                st.image(summary_img, use_container_width=True)
+        with image_col2:
+            support_img = "viz/10_support_help_seeking.png"
+            if os.path.exists(support_img):
+                st.image(support_img, use_container_width=True)
 
         st.markdown(f"""
-Across the Module 3 supervised learning work, the strongest Decision Tree was **{best_dt_name}** at **{best_dt_out['accuracy']:.4f}**, the strongest Naive Bayes model was **{best_nb_name}** at **{best_nb_out['accuracy']:.4f}**, and the best regression-side model was **{best_reg_name}** at **{best_reg_out['accuracy']:.4f}**.  
-This suggests that the project data contains useful predictive signal, but the difficulty of the task changes depending on whether the target is a four-class severity label or a simpler binary risk label.  
-Overall, the Decision Tree and Logistic Regression results show that the relationship between social media behavior and mental health can be modeled, while the Naive Bayes section helps explain how representation choices affect simpler probabilistic models.
+This project shows that social media is not just entertainment or background noise in daily life. It is part of how many people connect, compare, unwind, and cope. Because of that, online habits can spill over into sleep, mood, confidence, and overall wellbeing in ways that feel ordinary on the surface but become important when they repeat day after day.
+
+One of the clearest take-home messages is that mental health risk is shaped by combinations of behaviors rather than one single habit. Heavy use by itself does not tell the whole story. Late-night scrolling, frequent comparison with others, emotional strain, lower satisfaction, and weaker support systems all seem to matter when they appear together. The broader pattern matters more than any one number on its own.
+
+The modeling sections support that same idea from different angles. The strongest Decision Tree was **{best_dt_name}**, the strongest Naive Bayes model was **{best_nb_name}**, the strongest SVM result came from the **{best_svm_name.upper()}** kernel, the strongest ensemble method was **{best_ensemble_name}**, and the strongest regression-side result was **{best_reg_name}**. In plain language, the more flexible methods usually handled the topic better than the more rigid ones, which suggests that human behavior online does not follow one simple rule.
+
+Another important conclusion is that this topic is not really about blaming technology. The website points toward balance rather than fear. Social media can still be useful, social, creative, and comforting. The problem seems to grow when use becomes more intense, more isolating, more comparison-driven, or more likely to interfere with sleep and offline wellbeing.
+
+Overall, the key message is hopeful as much as it is cautionary. If unhealthy patterns can be recognized, then healthier patterns can also be encouraged. Better habits, stronger support, more intentional use, and earlier awareness all have the potential to improve digital wellbeing. That makes this topic worth studying not only to describe a problem, but also to help people make smarter and kinder choices in everyday life.
 """)
     else:
         st.info("Load the cleaned dataset to view the final cross-model summary.")
