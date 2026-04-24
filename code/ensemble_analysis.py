@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 
 from sklearn.ensemble import AdaBoostClassifier, ExtraTreesClassifier, RandomForestClassifier, VotingClassifier
 from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import accuracy_score, confusion_matrix
+from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
 from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
@@ -54,12 +54,20 @@ def prepare_ensemble_data(df: pd.DataFrame, test_size=0.2, random_state=42):
         stratify=y
     )
 
+    scaler = StandardScaler()
+    X_train_scaled = scaler.fit_transform(X_train_raw)
+    X_test_scaled = scaler.transform(X_test_raw)
+    X_train_scaled_df = pd.DataFrame(X_train_scaled, columns=feature_names, index=X_train_raw.index)
+    X_test_scaled_df = pd.DataFrame(X_test_scaled, columns=feature_names, index=X_test_raw.index)
+
     return {
         "X": X,
         "y": y,
         "feature_names": feature_names,
         "X_train_raw": X_train_raw,
         "X_test_raw": X_test_raw,
+        "X_train_scaled_df": X_train_scaled_df,
+        "X_test_scaled_df": X_test_scaled_df,
         "y_train": y_train,
         "y_test": y_test,
     }
@@ -107,6 +115,13 @@ def run_ensemble_models(prep: dict):
             "accuracy": accuracy_score(prep["y_test"], preds),
             "confusion_matrix": confusion_matrix(prep["y_test"], preds, labels=labels),
             "labels": labels,
+            "report": classification_report(
+                prep["y_test"],
+                preds,
+                target_names=["Lower Risk", "Higher Risk"],
+                output_dict=True,
+                zero_division=0
+            ),
         }
 
     return results
@@ -120,6 +135,31 @@ def ensemble_accuracy_table(results: dict):
             "Accuracy": round(details["accuracy"], 4)
         })
     return pd.DataFrame(rows).sort_values("Accuracy", ascending=False).reset_index(drop=True)
+
+
+def classification_report_table(report: dict):
+    rows = []
+    for label in ["Lower Risk", "Higher Risk", "accuracy", "macro avg", "weighted avg"]:
+        if label not in report:
+            continue
+        entry = report[label]
+        if label == "accuracy":
+            rows.append({
+                "Label": "accuracy",
+                "Precision": np.nan,
+                "Recall": np.nan,
+                "F1-Score": round(entry, 4),
+                "Support": np.nan
+            })
+        else:
+            rows.append({
+                "Label": label,
+                "Precision": round(entry["precision"], 4),
+                "Recall": round(entry["recall"], 4),
+                "F1-Score": round(entry["f1-score"], 4),
+                "Support": int(entry["support"])
+            })
+    return pd.DataFrame(rows)
 
 
 def plot_confusion_matrix(cm, labels=("Lower Risk", "Higher Risk"), title="Confusion Matrix"):

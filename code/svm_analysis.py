@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 
 from mpl_toolkits.mplot3d import Axes3D  # noqa: F401
 from sklearn.decomposition import PCA
-from sklearn.metrics import accuracy_score, confusion_matrix
+from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVC
@@ -57,6 +57,8 @@ def prepare_svm_data(df: pd.DataFrame, test_size=0.2, random_state=42):
     scaler = StandardScaler()
     X_train_scaled = scaler.fit_transform(X_train_raw)
     X_test_scaled = scaler.transform(X_test_raw)
+    X_train_scaled_df = pd.DataFrame(X_train_scaled, columns=feature_names, index=X_train_raw.index)
+    X_test_scaled_df = pd.DataFrame(X_test_scaled, columns=feature_names, index=X_test_raw.index)
 
     pca_2d = PCA(n_components=2, random_state=random_state)
     X_train_pca2 = pca_2d.fit_transform(X_train_scaled)
@@ -73,6 +75,8 @@ def prepare_svm_data(df: pd.DataFrame, test_size=0.2, random_state=42):
         "scaler": scaler,
         "X_train_scaled": X_train_scaled,
         "X_test_scaled": X_test_scaled,
+        "X_train_scaled_df": X_train_scaled_df,
+        "X_test_scaled_df": X_test_scaled_df,
         "pca_2d": pca_2d,
         "X_train_pca2": X_train_pca2,
         "X_test_pca2": X_test_pca2,
@@ -94,7 +98,7 @@ def run_svm_experiments(prep: dict, kernels=None, costs=None):
     if kernels is None:
         kernels = ("linear", "poly", "rbf")
     if costs is None:
-        costs = (0.001, 0.01, 0.1, 1, 10, 100)
+        costs = (0.001, 0.1, 1.0)
 
     results = {}
     labels = [0, 1]
@@ -114,6 +118,13 @@ def run_svm_experiments(prep: dict, kernels=None, costs=None):
                 "confusion_matrix": confusion_matrix(prep["y_test"], preds, labels=labels),
                 "labels": labels,
                 "support_vectors": int(model.n_support_.sum()),
+                "report": classification_report(
+                    prep["y_test"],
+                    preds,
+                    target_names=["Lower Risk", "Higher Risk"],
+                    output_dict=True,
+                    zero_division=0
+                ),
             }
             trials.append(trial)
 
@@ -150,6 +161,31 @@ def best_svm_table(results: dict):
             "Support Vectors": best["support_vectors"],
         })
     return pd.DataFrame(rows).sort_values("Accuracy", ascending=False).reset_index(drop=True)
+
+
+def classification_report_table(report: dict):
+    rows = []
+    for label in ["Lower Risk", "Higher Risk", "accuracy", "macro avg", "weighted avg"]:
+        if label not in report:
+            continue
+        entry = report[label]
+        if label == "accuracy":
+            rows.append({
+                "Label": "accuracy",
+                "Precision": np.nan,
+                "Recall": np.nan,
+                "F1-Score": round(entry, 4),
+                "Support": np.nan
+            })
+        else:
+            rows.append({
+                "Label": label,
+                "Precision": round(entry["precision"], 4),
+                "Recall": round(entry["recall"], 4),
+                "F1-Score": round(entry["f1-score"], 4),
+                "Support": int(entry["support"])
+            })
+    return pd.DataFrame(rows)
 
 
 def plot_confusion_matrix(cm, labels=("Lower Risk", "Higher Risk"), title="Confusion Matrix"):
